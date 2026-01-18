@@ -192,3 +192,20 @@ async function onScratch() {
 
   initScratchCard();
 }
+
+/* ================= LEVEL SYSTEM ================= */
+function getLevel(balance) {
+  // level 1 → 1000 (slow growth)
+  return Math.min(1000, Math.floor(balance / 100) + 1);
+}
+
+function checkLevelUp(oldBalance, newBalance) {
+  const oldLevel = getLevel(oldBalance);
+  const newLevel = getLevel(newBalance);
+
+  if (newLevel > oldLevel) {
+    showStatus(`⬆️ Level Up! You are now Level ${newLevel}`);
+    playSound("winSound");
+    launchConfetti(40);
+  }
+}
