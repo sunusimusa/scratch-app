@@ -170,41 +170,45 @@ app.post("/api/ads/watch", async (req, res) => {
 app.post("/api/scratch", async (req, res) => {
   try {
     const sid = req.cookies.sid;
-    if (!sid) return res.status(401).json({ error: "NO_SESSION" });
+    if (!sid) {
+      return res.json({ error: "NO_SESSION" });
+    }
 
     const user = await User.findOne({ sessionId: sid });
-    if (!user) return res.status(404).json({ error: "USER_NOT_FOUND" });
+    if (!user) {
+      return res.json({ error: "USER_NOT_FOUND" });
+    }
 
+    // ⛔ energy check (server side)
     if (user.energy <= 0) {
       return res.json({ error: "NO_ENERGY" });
     }
 
-    // rage energy 1
+    // 🔋 rage energy 1 (SERVER ONLY)
     user.energy -= 1;
 
-    // reward (karami)
-    const rewards = [0, 1, 2, 5];
+    // 🎁 reward (kanana – kamar yadda kace)
+    const rewards = [0, 5, 10, 20];
     const reward = rewards[Math.floor(Math.random() * rewards.length)];
 
     user.balance += reward;
 
-    // LEVEL (MUHIMMI)
-    const level = Math.min(1000, Math.floor(user.balance / 100) + 1);
-    user.level = level;
+    // ⬆️ level (1 → 1000)
+    user.level = Math.min(1000, Math.floor(user.balance / 100) + 1);
 
     await user.save();
 
-    res.json({
+    return res.json({
       success: true,
       reward,
       energy: user.energy,
       balance: user.balance,
-      level: user.level   // ⚠️ MUHIMMI
+      level: user.level
     });
 
   } catch (err) {
     console.error("SCRATCH ERROR:", err);
-    res.status(500).json({ error: "SERVER_ERROR" });
+    return res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
 
