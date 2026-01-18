@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scratch Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- STYLE -->
+  <link rel="stylesheet" href="/style.css" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#ffd700" />
+</head>
+<body>
+
+  <!-- ===== TITLE ===== -->
+  <h2 class="title">🎟️ Scratch Game</h2>
+
+  <!-- ===== STATUS ===== -->
+  <p id="statusMsg" class="status hidden"></p>
+
+  <!-- ===== ENERGY ===== -->
+  <div class="energy-box">
+    <span id="energyText">Energy: 0</span>
+    <div class="energy-bar">
+      <div id="energyFill"></div>
+    </div>
+  </div>
+
+  <!-- ===== LEVEL ===== -->
+  <p id="levelText">Level: 1</p>
+
+  <!-- ===== MAIN ACTION ===== -->
+  <div class="card">
+    <button id="scratchBtn">
+      🎟️ SCRATCH
+    </button>
+
+    <p class="hint">
+      Watch ads to get energy
+    </p>
+  </div>
+
+  <!-- ===== DAILY ===== -->
+  <button id="dailyBtn">
+    🎁 Daily Free Energy
+  </button>
+
+  <!-- ===== ADS ===== -->
+  <button id="adsBtn">
+    📺 Watch Ad → +Energy
+  </button>
+
+  <!-- ===== LEGAL ===== -->
+  <p class="legal">
+    <a href="/privacy.html">Privacy</a> ·
+    <a href="/terms.html">Terms</a>
+  </p>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="/index.js"></script>
+  <script src="/script.js"></script>
+
+</body>
+</html>
