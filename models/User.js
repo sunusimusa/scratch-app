@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
   {
-    /* ===== CORE ===== */
     userId: {
       type: String,
       required: true,
@@ -14,10 +13,11 @@ const UserSchema = new mongoose.Schema(
     sessionId: {
       type: String,
       unique: true,
-      sparse: true
+      sparse: true,
+      index: true
     },
 
-    /* ===== GAME PROGRESS ===== */
+    /* ===== GAME ===== */
     level: {
       type: Number,
       default: 1
@@ -47,15 +47,12 @@ const UserSchema = new mongoose.Schema(
     lastAdsDate: {
       type: String,
       default: ""
-    },
-
-    /* ===== META ===== */
-    createdAt: {
-      type: Date,
-      default: Date.now
     }
   },
-  { versionKey: false }
+  {
+    timestamps: true,
+    versionKey: false
+  }
 );
 
 export default mongoose.model("User", UserSchema);
