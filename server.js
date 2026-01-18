@@ -167,6 +167,47 @@ app.post("/api/ads/watch", async (req, res) => {
   }
 });
 
+app.post("/api/scratch", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.status(401).json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.status(404).json({ error: "USER_NOT_FOUND" });
+
+    if (user.energy <= 0) {
+      return res.json({ error: "NO_ENERGY" });
+    }
+
+    // rage energy 1
+    user.energy -= 1;
+
+    // reward (karami)
+    const rewards = [0, 1, 2, 5];
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
+
+    user.balance += reward;
+
+    // LEVEL (MUHIMMI)
+    const level = Math.min(1000, Math.floor(user.balance / 100) + 1);
+    user.level = level;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      reward,
+      energy: user.energy,
+      balance: user.balance,
+      level: user.level   // ⚠️ MUHIMMI
+    });
+
+  } catch (err) {
+    console.error("SCRATCH ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ===== START ===== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
