@@ -1,5 +1,6 @@
 /* =====================================================
    INDEX.JS – SCRATCH GAME CORE (FINAL CLEAN)
+   SIMPLE • STABLE • ANDROID & RENDER SAFE
 ===================================================== */
 
 let USER = null;
@@ -32,16 +33,23 @@ async function initUser() {
     });
 
     const data = await res.json();
-    if (!data.success) throw 1;
+    if (!data || !data.success) throw new Error("NO_USER");
 
-    USER = data;
+    USER = {
+      ...data,
+      balance: data.balance ?? 0,
+      energy: data.energy ?? 0
+    };
+
     USER.level = getLevel(USER.balance);
 
     updateUI();
     showStatus("✅ Ready");
 
-  } catch {
+  } catch (err) {
     INIT_TRIES++;
+    console.warn("Init retry:", INIT_TRIES);
+
     if (INIT_TRIES < MAX_INIT_TRIES) {
       setTimeout(initUser, 1000);
     } else {
@@ -86,7 +94,7 @@ function showStatus(text) {
   el.classList.remove("hidden");
 }
 
-/* ================= DAILY ENERGY ================= */
+/* ================= DAILY FREE ENERGY ================= */
 async function claimDailyEnergy() {
   showStatus("🎁 Claiming daily energy...");
 
@@ -98,14 +106,21 @@ async function claimDailyEnergy() {
 
     const data = await res.json();
 
-    if (data.error) {
+    if (data.error === "DAILY_ALREADY_CLAIMED") {
       showStatus("⏳ Daily already claimed");
+      return;
+    }
+
+    if (data.error) {
+      showStatus("❌ " + data.error);
       return;
     }
 
     USER.energy = data.energy;
     updateUI();
     showStatus("⚡ +5 Daily Energy");
+
+    if (window.playSound) playSound("winSound");
 
   } catch {
     showStatus("❌ Network error");
@@ -123,6 +138,7 @@ async function watchAd() {
     });
 
     const data = await res.json();
+
     if (data.error) {
       showStatus("❌ " + data.error);
       return;
@@ -131,6 +147,8 @@ async function watchAd() {
     USER.energy = data.energy;
     updateUI();
     showStatus("⚡ Energy added!");
+
+    if (window.playSound) playSound("winSound");
 
   } catch {
     showStatus("❌ Network error");
@@ -144,14 +162,16 @@ function startScratch() {
     return;
   }
 
-  // rage energy 1 (UI feedback)
+  // rage energy 1 (UI feedback kawai)
   USER.energy -= 1;
   updateUI();
 
-  // bude scratch canvas (script.js)
+  // bude scratch card (script.js)
   if (window.initScratchCard) {
     window.initScratchCard();
   }
+
+  if (window.playSound) playSound("clickSound");
 
   showStatus("🎟️ Scratch now!");
 }
@@ -181,6 +201,10 @@ async function claimScratchReward() {
     updateUI();
     showStatus("🎉 You won!");
 
+    if (data.reward > 0 && window.spawnCoins) {
+      spawnCoins(Math.min(20, data.reward * 2));
+    }
+
     checkLevelUp(oldBalance, USER.balance);
 
   } catch {
@@ -190,7 +214,8 @@ async function claimScratchReward() {
 
 /* ================= LEVEL SYSTEM ================= */
 function getLevel(balance) {
-  return Math.min(1000, Math.floor(balance / 100) + 1);
+  const safeBalance = Number(balance) || 0;
+  return Math.min(1000, Math.floor(safeBalance / 100) + 1);
 }
 
 function checkLevelUp(oldBalance, newBalance) {
@@ -199,7 +224,8 @@ function checkLevelUp(oldBalance, newBalance) {
 
   if (newLevel > oldLevel) {
     showStatus(`⬆️ Level Up! Level ${newLevel}`);
+
     if (window.launchConfetti) launchConfetti(30);
     if (window.playSound) playSound("winSound");
   }
-}
+   }
