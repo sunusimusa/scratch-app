@@ -1,36 +1,59 @@
 /* =====================================================
-   SCRATCH CARD – REAL RUB / SWIPE
+   SCRATCH CARD – REAL RUB / SWIPE (FINAL FULL)
    ANDROID + WEBVIEW SAFE
 ===================================================== */
 
-const canvas = document.getElementById("scratchCanvas");
+const canvas  = document.getElementById("scratchCanvas");
 const section = document.getElementById("scratchSection");
 
+if (!canvas || !section) {
+  console.warn("Scratch elements missing");
+}
+
+/* ================= STATE ================= */
 let ctx, W, H;
 let scratching = false;
 let scratchedDone = false;
+let scratchReady = false;
 
 /* ================= INIT ================= */
 function initScratchCard() {
   if (!canvas) return;
 
-  ctx = canvas.getContext("2d");
+  ctx = canvas.getContext("2d", { willReadFrequently: true });
   W = canvas.width;
   H = canvas.height;
 
-  // cover
+  // reset state
+  scratching = false;
+  scratchedDone = false;
+  scratchReady = true;
+
+  // reset canvas
   ctx.globalCompositeOperation = "source-over";
+  ctx.clearRect(0, 0, W, H);
+
+  // cover layer
   ctx.fillStyle = "#9e9e9e";
   ctx.fillRect(0, 0, W, H);
 
   ctx.globalCompositeOperation = "destination-out";
-  scratchedDone = false;
 
+  // show section
   section.classList.remove("hidden");
+  canvas.style.display = "block";
+
+  // unlock sounds (Android)
+  if (window.playSound) playSound("clickSound");
 }
+
+/* expose globally */
+window.initScratchCard = initScratchCard;
 
 /* ================= DRAW ================= */
 function scratch(x, y) {
+  if (!scratchReady || scratchedDone) return;
+
   ctx.beginPath();
   ctx.arc(x, y, 18, 0, Math.PI * 2);
   ctx.fill();
@@ -49,55 +72,95 @@ function scratchedPercent() {
 }
 
 function checkScratch() {
-  if (scratchedDone) return;
+  if (!scratchReady || scratchedDone) return;
 
   if (scratchedPercent() >= 60) {
     scratchedDone = true;
+    scratchReady = false;
     finishScratch();
   }
 }
 
 /* ================= FINISH ================= */
 async function finishScratch() {
+  canvas.style.display = "none";
   section.classList.add("hidden");
+
+  if (window.playSound) playSound("winSound");
+
   await claimScratchReward();
 }
 
 /* ================= MOUSE ================= */
-canvas.addEventListener("mousedown", () => scratching = true);
-canvas.addEventListener("mouseup", () => scratching = false);
+canvas.addEventListener("mousedown", () => {
+  if (!scratchReady) return;
+  scratching = true;
+});
+
+canvas.addEventListener("mouseup", () => {
+  scratching = false;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  scratching = false;
+});
+
 canvas.addEventListener("mousemove", e => {
   if (!scratching || scratchedDone) return;
   scratch(e.offsetX, e.offsetY);
   checkScratch();
 });
 
-/* ================= TOUCH (ANDROID) ================= */
-canvas.addEventListener("touchstart", e => {
-  e.preventDefault();
-  scratching = true;
-}, { passive: false });
+/* ================= TOUCH (ANDROID SAFE) ================= */
+canvas.addEventListener(
+  "touchstart",
+  e => {
+    if (!scratchReady) return;
+    e.preventDefault();
+    scratching = true;
+  },
+  { passive: false }
+);
 
-canvas.addEventListener("touchend", e => {
-  e.preventDefault();
-  scratching = false;
-}, { passive: false });
+canvas.addEventListener(
+  "touchend",
+  e => {
+    e.preventDefault();
+    scratching = false;
+  },
+  { passive: false }
+);
 
-canvas.addEventListener("touchmove", e => {
-  e.preventDefault();
-  if (!scratching || scratchedDone) return;
+canvas.addEventListener(
+  "touchcancel",
+  () => {
+    scratching = false;
+  },
+  { passive: false }
+);
 
-  const rect = canvas.getBoundingClientRect();
-  const t = e.touches[0];
+canvas.addEventListener(
+  "touchmove",
+  e => {
+    if (!scratching || scratchedDone) return;
+    e.preventDefault();
 
-  scratch(
-    t.clientX - rect.left,
-    t.clientY - rect.top
-  );
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
 
-  checkScratch();
-}, { passive: false });
+    scratch(
+      t.clientX - rect.left,
+      t.clientY - rect.top
+    );
 
+    checkScratch();
+  },
+  { passive: false }
+);
+
+/* =====================================================
+   VISUAL FEEDBACK
+===================================================== */
 
 /* ================= COIN FLY ================= */
 function spawnCoins(count = 12) {
@@ -154,7 +217,3 @@ function launchConfetti(count = 25) {
     setTimeout(() => c.remove(), 2000);
   }
 }
-
-
-
-
