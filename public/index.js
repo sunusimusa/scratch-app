@@ -177,4 +177,18 @@ async function onScratch() {
   } catch {
     showStatus("❌ Network error");
   }
-      }
+ }
+
+/* ================= SCRATCH BUTTON ================= */
+async function onScratch() {
+  if (!USER || USER.energy <= 0) {
+    showStatus("⚡ Get energy first");
+    return;
+  }
+
+  // rage energy 1 (UI side)
+  USER.energy -= 1;
+  updateUI();
+
+  initScratchCard();
+}
