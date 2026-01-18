@@ -1,6 +1,5 @@
 /* =====================================================
-   INDEX.JS – SCRATCH GAME CORE LOGIC (STEP B)
-   SIMPLE • STABLE • PLAY STORE SAFE
+   INDEX.JS – SCRATCH GAME CORE (FINAL CLEAN)
 ===================================================== */
 
 let USER = null;
@@ -19,7 +18,7 @@ function bindUI() {
   const dailyBtn   = document.getElementById("dailyBtn");
   const adsBtn     = document.getElementById("adsBtn");
 
-  if (scratchBtn) scratchBtn.onclick = onScratch;
+  if (scratchBtn) scratchBtn.onclick = startScratch;
   if (dailyBtn)   dailyBtn.onclick   = claimDailyEnergy;
   if (adsBtn)     adsBtn.onclick     = watchAd;
 }
@@ -33,9 +32,11 @@ async function initUser() {
     });
 
     const data = await res.json();
-    if (!data.success) throw "NO_USER";
+    if (!data.success) throw 1;
 
     USER = data;
+    USER.level = getLevel(USER.balance);
+
     updateUI();
     showStatus("✅ Ready");
 
@@ -63,19 +64,17 @@ function updateUI() {
   }
 
   if (energyFill) {
-    const percent = Math.min(USER.energy * 10, 100);
-    energyFill.style.width = percent + "%";
+    energyFill.style.width = Math.min(USER.energy * 10, 100) + "%";
   }
 
   if (levelText) {
-    levelText.innerText = `Level: ${USER.level || 1}`;
+    levelText.innerText = `Level: ${USER.level}`;
   }
 
-  // 🔒 Scratch availability
   if (scratchBtn) {
     scratchBtn.disabled = USER.energy <= 0;
     scratchBtn.innerText =
-      USER.energy > 0 ? "🎟️ SCRATCH" : "⚡ Get Energy First";
+      USER.energy > 0 ? "🎟️ SCRATCH" : "⚡ Get Energy";
   }
 }
 
@@ -87,7 +86,7 @@ function showStatus(text) {
   el.classList.remove("hidden");
 }
 
-/* ================= DAILY FREE ENERGY ================= */
+/* ================= DAILY ENERGY ================= */
 async function claimDailyEnergy() {
   showStatus("🎁 Claiming daily energy...");
 
@@ -99,13 +98,8 @@ async function claimDailyEnergy() {
 
     const data = await res.json();
 
-    if (data.error === "DAILY_ALREADY_CLAIMED") {
-      showStatus("⏳ Daily already claimed");
-      return;
-    }
-
     if (data.error) {
-      showStatus("❌ " + data.error);
+      showStatus("⏳ Daily already claimed");
       return;
     }
 
@@ -129,7 +123,6 @@ async function watchAd() {
     });
 
     const data = await res.json();
-
     if (data.error) {
       showStatus("❌ " + data.error);
       return;
@@ -144,14 +137,28 @@ async function watchAd() {
   }
 }
 
-/* ================= SCRATCH (LOGIC ONLY) ================= */
-async function onScratch() {
+/* ================= START SCRATCH ================= */
+function startScratch() {
   if (!USER || USER.energy <= 0) {
-    showStatus("⚡ Not enough energy");
+    showStatus("⚡ Get energy first");
     return;
   }
 
-  showStatus("🎟️ Scratching...");
+  // rage energy 1 (UI feedback)
+  USER.energy -= 1;
+  updateUI();
+
+  // bude scratch canvas (script.js)
+  if (window.initScratchCard) {
+    window.initScratchCard();
+  }
+
+  showStatus("🎟️ Scratch now!");
+}
+
+/* ================= CLAIM SCRATCH RESULT ================= */
+async function claimScratchReward() {
+  showStatus("🎁 Checking reward...");
 
   try {
     const res = await fetch("/api/scratch", {
@@ -160,42 +167,29 @@ async function onScratch() {
     });
 
     const data = await res.json();
-
     if (data.error) {
       showStatus("❌ " + data.error);
       return;
     }
 
-    // 🔄 update state
-    USER.energy  = data.energy;
+    const oldBalance = USER.balance;
+
     USER.balance = data.balance;
-    USER.level   = data.level || USER.level;
+    USER.energy  = data.energy;
+    USER.level   = getLevel(USER.balance);
 
     updateUI();
     showStatus("🎉 You won!");
 
+    checkLevelUp(oldBalance, USER.balance);
+
   } catch {
     showStatus("❌ Network error");
   }
- }
-
-/* ================= SCRATCH BUTTON ================= */
-async function onScratch() {
-  if (!USER || USER.energy <= 0) {
-    showStatus("⚡ Get energy first");
-    return;
-  }
-
-  // rage energy 1 (UI side)
-  USER.energy -= 1;
-  updateUI();
-
-  initScratchCard();
 }
 
 /* ================= LEVEL SYSTEM ================= */
 function getLevel(balance) {
-  // level 1 → 1000 (slow growth)
   return Math.min(1000, Math.floor(balance / 100) + 1);
 }
 
@@ -204,8 +198,8 @@ function checkLevelUp(oldBalance, newBalance) {
   const newLevel = getLevel(newBalance);
 
   if (newLevel > oldLevel) {
-    showStatus(`⬆️ Level Up! You are now Level ${newLevel}`);
-    playSound("winSound");
-    launchConfetti(40);
+    showStatus(`⬆️ Level Up! Level ${newLevel}`);
+    if (window.launchConfetti) launchConfetti(30);
+    if (window.playSound) playSound("winSound");
   }
 }
