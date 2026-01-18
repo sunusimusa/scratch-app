@@ -116,3 +116,80 @@ button:active {
 .hidden {
   display: none;
 }
+
+:root {
+  --bg: #0b0b12;
+  --card: #1c1c28;
+  --gold: #ffd700;
+  --accent: #ff9800;
+  --text: #ffffff;
+  --muted: #9e9e9e;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ===== SCRATCH CARD ===== */
+.scratch-card {
+  width: 260px;
+  height: 160px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 20px 40px rgba(0,0,0,.6);
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== ENERGY ===== */
+.energy-bar {
+  width: 260px;
+  height: 10px;
+  background: #222;
+  border-radius: 999px;
+  margin: 10px auto;
+  overflow: hidden;
+}
+
+#energyFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ffd700, #ff9800);
+  transition: width .3s ease;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  width: 260px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #ffd700, #ff9800);
+  color: #000;
+}
+
+.secondary-btn {
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+}
+
+button:disabled {
+  opacity: .6;
+}
+
+/* ===== STATUS ===== */
+#statusMsg {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--gold);
+  min-height: 18px;
+}
