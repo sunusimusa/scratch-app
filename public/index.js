@@ -163,7 +163,6 @@ function startScratch() {
   }
 
   // rage energy 1 (UI feedback kawai)
-  USER.energy -= 1;
   updateUI();
 
   // bude scratch card (script.js)
