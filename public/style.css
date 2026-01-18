@@ -100,3 +100,19 @@ button:active {
   color: #ffd700;
   text-decoration: none;
 }
+
+.scratch-wrapper {
+  margin: 20px auto;
+  width: 260px;
+  text-align: center;
+}
+
+#scratchCanvas {
+  background: #ccc;
+  border-radius: 10px;
+  touch-action: none; /* 🔥 MUHIMMI ga Android */
+}
+
+.hidden {
+  display: none;
+}
