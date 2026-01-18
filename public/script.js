@@ -97,3 +97,64 @@ canvas.addEventListener("touchmove", e => {
 
   checkScratch();
 }, { passive: false });
+
+
+/* ================= COIN FLY ================= */
+function spawnCoins(count = 12) {
+  const target = document.getElementById("balance");
+  if (!target) return;
+
+  const rect = target.getBoundingClientRect();
+
+  for (let i = 0; i < count; i++) {
+    const coin = document.createElement("div");
+    coin.className = "coin";
+
+    coin.style.left = window.innerWidth / 2 + "px";
+    coin.style.top  = window.innerHeight / 2 + "px";
+
+    document.body.appendChild(coin);
+
+    setTimeout(() => {
+      coin.style.left = rect.left + 20 + "px";
+      coin.style.top  = rect.top + 10 + "px";
+      coin.style.opacity = "0";
+      coin.style.transform = "scale(0.5)";
+    }, 50);
+
+    setTimeout(() => coin.remove(), 900);
+  }
+}
+
+/* ================= CONFETTI ================= */
+function launchConfetti(count = 25) {
+  for (let i = 0; i < count; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+
+    c.style.left = Math.random() * window.innerWidth + "px";
+    c.style.backgroundColor =
+      ["#ffd700", "#ff5722", "#4caf50", "#03a9f4"][
+        Math.floor(Math.random() * 4)
+      ];
+
+    document.body.appendChild(c);
+
+    c.animate(
+      [
+        { transform: "translateY(0)", opacity: 1 },
+        {
+          transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`,
+          opacity: 0
+        }
+      ],
+      { duration: 1200 + Math.random() * 800 }
+    );
+
+    setTimeout(() => c.remove(), 2000);
+  }
+}
+
+
+
+
