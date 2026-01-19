@@ -60,11 +60,11 @@ async function initUser() {
 function updateUI() {
   if (!USER) return;
 
+  const scratchBtn = document.getElementById("scratchBtn");
   const energyText = document.getElementById("energyText");
   const energyFill = document.getElementById("energyFill");
   const levelText  = document.getElementById("levelText");
   const pointsText = document.getElementById("pointsText");
-  const scratchBtn = document.getElementById("scratchBtn");
 
   if (energyText) energyText.innerText = `Energy: ${USER.energy}`;
   if (pointsText) pointsText.innerText = `Points: ${USER.balance}`;
@@ -75,7 +75,7 @@ function updateUI() {
   }
 
   if (scratchBtn) {
-    scratchBtn.disabled = USER.energy <= 0;
+    scratchBtn.disabled = USER.energy <= 0 || SCRATCHING;
     scratchBtn.innerText =
       USER.energy > 0 ? "🎟️ SCRATCH" : "⚡ Get Energy";
   }
@@ -214,55 +214,48 @@ async function claimScratchReward() {
     });
 
     const data = await res.json();
-    if (data.error) {
-      showStatus("❌ " + data.error);
+
+    // ❌ idan server yace babu energy
+    if (data.error === "NO_ENERGY") {
+      showStatus("⚡ Energy finished");
+      SCRATCHING = false;
+      updateUI();
       return;
     }
 
-    // 🔄 UPDATE USER STATE (SAFE)
-    USER.balance = Number(data.balance) || USER.balance;
-    USER.energy  = Number(data.energy)  || USER.energy;
-    USER.level   = Number(data.level)   || USER.level;
+    if (data.error) {
+      showStatus("❌ " + data.error);
+      SCRATCHING = false;
+      return;
+    }
+
+    // ✅ sync daga server
+    USER.balance = data.balance;
+    USER.energy  = data.energy;
+    USER.level   = data.level;
+
+    updateUI();
 
     const rewardBox = document.getElementById("scratchReward");
-
     if (rewardBox) {
-
-      // 🟢 BIG WIN (reset luck)
-      if (data.reward?.points >= 20) {
-        rewardBox.innerText = `🎉 BIG WIN +${data.reward.points} POINTS`;
-        LUCK = 0;
-
-      }
-      // 🟡 NORMAL POINT WIN
-      else if (data.reward?.points > 0) {
+      if (data.reward?.points > 0) {
         rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
-        LUCK = Math.max(0, LUCK - 20);
-
-      }
-      // 🔵 ENERGY WIN
-      else if (data.reward?.energy > 0) {
+      } else if (data.reward?.energy > 0) {
         rewardBox.innerText = `⚡ +${data.reward.energy} ENERGY`;
-        LUCK = Math.max(0, LUCK - 10);
-
-      }
-      // 🔴 NO REWARD
-      else {
+      } else {
         rewardBox.innerText = "🙂 NO REWARD";
-        LUCK = Math.min(MAX_LUCK, LUCK + 15);
       }
     }
 
-    // 🔄 UPDATE UI SAU DAYA KAWAI
-    updateUI();
-
     showStatus("🎟️ Scratch complete!");
 
-  } catch (err) {
-    console.error(err);
+  } catch {
     showStatus("❌ Network error");
+  } finally {
+    // 🔓 UNLOCK SCRATCH
+    SCRATCHING = false;
+    updateUI();
   }
 }
 
-/* expose for script.js */
 window.claimScratchReward = claimScratchReward;
