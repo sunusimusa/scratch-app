@@ -263,3 +263,61 @@ button:disabled {
 .bonus-btn:active {
   transform: scale(0.97);
 }
+
+/* ================= REFERRAL ================= */
+.referral-card {
+  width: 260px;
+  margin: 20px auto;
+  padding: 16px;
+  border-radius: 16px;
+  background: #1c1c28;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 0 0 1px #2a2a3a inset;
+}
+
+.referral-card h3 {
+  margin: 0 0 8px;
+  color: #ffd700;
+}
+
+.ref-desc {
+  font-size: 13px;
+  color: #ddd;
+  margin-bottom: 12px;
+}
+
+.ref-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111;
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.ref-code-box span {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.ref-code-box button {
+  background: #ffd700;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ref-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  margin-bottom: 10px;
+  background: #111;
+  color: #fff;
+}
