@@ -18,8 +18,8 @@ if (!canvas || !section) {
 /* ================= STATE ================= */
 let ctx, W, H;
 let scratching = false;
-let scratched = false;
-let ready = false;
+let scratched  = false;
+let ready      = false;
 
 /* ================= INIT SCRATCH ================= */
 function initScratchCard() {
@@ -29,10 +29,10 @@ function initScratchCard() {
   W = canvas.width;
   H = canvas.height;
 
-  // reset flags
+  // reset state
   scratching = false;
-  scratched = false;
-  ready = true;
+  scratched  = false;
+  ready      = true;
 
   // reset canvas
   ctx.globalCompositeOperation = "source-over";
@@ -50,7 +50,7 @@ function initScratchCard() {
   if (window.playSound) playSound("clickSound");
 }
 
-/* expose */
+/* expose globally */
 window.initScratchCard = initScratchCard;
 
 /* ================= DRAW ================= */
@@ -64,11 +64,11 @@ function drawScratch(x, y) {
 
 /* ================= PERCENT ================= */
 function getPercent() {
-  const data = ctx.getImageData(0, 0, W, H).data;
+  const img = ctx.getImageData(0, 0, W, H).data;
   let cleared = 0;
 
-  for (let i = 3; i < data.length; i += 4) {
-    if (data[i] === 0) cleared++;
+  for (let i = 3; i < img.length; i += 4) {
+    if (img[i] === 0) cleared++;
   }
 
   return (cleared / (W * H)) * 100;
@@ -90,8 +90,7 @@ async function finishScratch() {
   canvas.style.display = "none";
   section.classList.add("hidden");
 
-  if (window.playSound) playSound("winSound");
-
+  // ⚠️ SOUND anan zai dogara da reward
   await claimScratchReward();
 }
 
@@ -111,49 +110,35 @@ canvas.addEventListener("mousemove", e => {
 });
 
 /* ================= TOUCH (ANDROID SAFE) ================= */
-canvas.addEventListener(
-  "touchstart",
-  e => {
-    if (!ready) return;
-    e.preventDefault();
-    scratching = true;
-  },
-  { passive: false }
-);
+canvas.addEventListener("touchstart", e => {
+  if (!ready) return;
+  e.preventDefault();
+  scratching = true;
+}, { passive: false });
 
-canvas.addEventListener(
-  "touchend",
-  e => {
-    e.preventDefault();
-    scratching = false;
-  },
-  { passive: false }
-);
+canvas.addEventListener("touchend", e => {
+  e.preventDefault();
+  scratching = false;
+}, { passive: false });
 
-canvas.addEventListener(
-  "touchcancel",
-  () => scratching = false,
-  { passive: false }
-);
+canvas.addEventListener("touchcancel", () => {
+  scratching = false;
+}, { passive: false });
 
-canvas.addEventListener(
-  "touchmove",
-  e => {
-    if (!scratching || scratched) return;
-    e.preventDefault();
+canvas.addEventListener("touchmove", e => {
+  if (!scratching || scratched) return;
+  e.preventDefault();
 
-    const rect = canvas.getBoundingClientRect();
-    const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches[0];
 
-    drawScratch(
-      t.clientX - rect.left,
-      t.clientY - rect.top
-    );
+  drawScratch(
+    t.clientX - rect.left,
+    t.clientY - rect.top
+  );
 
-    checkScratch();
-  },
-  { passive: false }
-);
+  checkScratch();
+}, { passive: false });
 
 /* =====================================================
    VISUAL FEEDBACK
@@ -161,7 +146,7 @@ canvas.addEventListener(
 
 /* ================= COINS ================= */
 function spawnCoins(count = 12) {
-  const target = document.getElementById("balance");
+  const target = document.getElementById("pointsText"); // ✅ GYARA
   if (!target) return;
 
   const rect = target.getBoundingClientRect();
@@ -176,8 +161,8 @@ function spawnCoins(count = 12) {
     document.body.appendChild(coin);
 
     setTimeout(() => {
-      coin.style.left = rect.left + 20 + "px";
-      coin.style.top  = rect.top + 10 + "px";
+      coin.style.left = rect.left + rect.width / 2 + "px";
+      coin.style.top  = rect.top + "px";
       coin.style.opacity = "0";
       coin.style.transform = "scale(0.5)";
     }, 60);
@@ -224,48 +209,35 @@ let SOUND_UNLOCKED = false;
 /* 🔊 PLAY SOUND */
 function playSound(id) {
   const audio = document.getElementById(id);
-  if (!audio) return;
-
-  if (!SOUND_UNLOCKED) {
-    console.log("🔇 Sound locked:", id);
-    return;
-  }
+  if (!audio || !SOUND_UNLOCKED) return;
 
   try {
     audio.pause();
     audio.currentTime = 0;
-    audio.play().catch(err => {
-      console.warn("Sound blocked:", id, err);
-    });
-  } catch (err) {
-    console.warn("Sound error:", err);
-  }
+    audio.play().catch(() => {});
+  } catch {}
 }
 
-/* 🔓 UNLOCK AUDIO (MUST BE USER ACTION) */
+/* 🔓 UNLOCK AUDIO (FIRST USER ACTION) */
 function unlockSounds() {
   if (SOUND_UNLOCKED) return;
 
-  const ids = ["clickSound", "winSound", "levelSound", "errorSound"];
-
-  ids.forEach(id => {
-    const audio = document.getElementById(id);
-    if (!audio) return;
-
+  ["clickSound", "winSound", "loseSound", "errorSound"].forEach(id => {
+    const a = document.getElementById(id);
+    if (!a) return;
     try {
-      audio.muted = true;
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
+      a.muted = true;
+      a.play().then(() => {
+        a.pause();
+        a.currentTime = 0;
+        a.muted = false;
       }).catch(() => {});
     } catch {}
   });
 
   SOUND_UNLOCKED = true;
-  console.log("🔊 Sounds unlocked successfully");
+  console.log("🔊 Sounds unlocked");
 }
 
-/* ⚠️ IMPORTANT: unlock on FIRST interaction */
 document.addEventListener("click", unlockSounds, { once: true });
 document.addEventListener("touchstart", unlockSounds, { once: true });
