@@ -8,8 +8,8 @@ const section = document.getElementById("scratchSection");
 
 let ctx, W, H;
 let scratching = false;
-let scratched = false;
-let ready = false;
+let scratched  = false;
+let ready      = false;
 
 /* ================= INIT ================= */
 function initScratchCard() {
@@ -20,8 +20,8 @@ function initScratchCard() {
   H = canvas.height;
 
   scratching = false;
-  scratched = false;
-  ready = true;
+  scratched  = false;
+  ready      = true;
 
   ctx.globalCompositeOperation = "source-over";
   ctx.clearRect(0, 0, W, H);
@@ -44,7 +44,7 @@ function draw(x, y) {
   ctx.fill();
 }
 
-/* ================= CHECK ================= */
+/* ================= PERCENT ================= */
 function percent() {
   const d = ctx.getImageData(0, 0, W, H).data;
   let c = 0;
@@ -54,6 +54,7 @@ function percent() {
   return (c / (W * H)) * 100;
 }
 
+/* ================= CHECK ================= */
 function check() {
   if (!ready || scratched) return;
   if (percent() >= 60) {
