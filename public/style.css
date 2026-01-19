@@ -132,3 +132,14 @@ button:disabled {
   color: #ffd700;
   margin-top: 6px;
 }
+
+#pointsText {
+  font-weight: 700;
+  color: #ffd700;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.points-bump {
+  transform: scale(1.15);
+  color: #ff9800;
+}
