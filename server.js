@@ -83,6 +83,7 @@ app.post("/api/user", async (req, res) => {
       energy: user.energy,
       points: user.points,
       level: user.level,
+       luck: user.luck,
       dailyClaimed: user.dailyEnergyDate === todayString()
     });
 
