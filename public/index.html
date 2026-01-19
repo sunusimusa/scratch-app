@@ -14,19 +14,15 @@
 <body>
 
   <!-- ===== SOUNDS ===== -->
-<audio id="clickSound" src="/sounds/click.mp3" preload="auto"></audio>
-<audio id="winSound" src="/sounds/win.mp3" preload="auto"></audio>
-<audio id="levelSound" src="/sounds/level.mp3" preload="auto"></audio>
-<audio id="errorSound" src="/sounds/error.mp3" preload="auto"></audio>
+  <audio id="clickSound" src="/sounds/click.mp3" preload="auto"></audio>
+  <audio id="winSound" src="/sounds/win.mp3" preload="auto"></audio>
+  <audio id="levelSound" src="/sounds/level.mp3" preload="auto"></audio>
+  <audio id="errorSound" src="/sounds/error.mp3" preload="auto"></audio>
 
   <!-- ===== APP TITLE ===== -->
   <h2 class="title">🎟️ Scratch Game</h2>
 
-  <div id="resultBox" class="hidden">
-  <h3 id="resultText">🎁 You won!</h3>
-  </div>
-
-  <!-- ===== STATUS ===== -->
+  <!-- ===== STATUS MESSAGE ===== -->
   <p id="statusMsg" class="status hidden"></p>
 
   <!-- ===== ENERGY BAR ===== -->
@@ -38,10 +34,25 @@
   <!-- ===== LEVEL ===== -->
   <p id="levelText">Level: 1</p>
 
-  <!-- ===== SCRATCH AREA ===== -->
-  <div id="scratchSection" class="scratch-card hidden">
-    <canvas id="scratchCanvas" width="260" height="160"></canvas>
-    <p class="scratch-label">Scratch to Win</p>
+  <!-- ===== SCRATCH SECTION ===== -->
+  <div id="scratchSection" class="scratch-section hidden">
+
+    <div class="scratch-card">
+
+      <!-- 🎁 REWARD (A KASA – ZA A GAN SHI BAYAN GOGEWA) -->
+      <div id="scratchReward" class="scratch-reward">
+        🎁 Scratch to Win
+      </div>
+
+      <!-- 🎟️ SCRATCH CANVAS (A SAMA – ANA GOGEWA) -->
+      <canvas
+        id="scratchCanvas"
+        width="260"
+        height="160">
+      </canvas>
+
+    </div>
+
   </div>
 
   <!-- ===== SCRATCH BUTTON ===== -->
@@ -68,5 +79,6 @@
   <!-- ===== SCRIPTS ===== -->
   <script src="/index.js"></script>
   <script src="/script.js"></script>
+
 </body>
 </html>
