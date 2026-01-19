@@ -6,6 +6,8 @@
 let USER = null;
 let INIT_TRIES = 0;
 const MAX_INIT_TRIES = 5;
+let LUCK = 0;          // 0 – 100
+const MAX_LUCK = 100;
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
