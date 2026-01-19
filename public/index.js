@@ -296,3 +296,58 @@ function checkLevelUp(oldBalance, newBalance) {
     if (window.playSound) playSound("winSound");
   }
 }
+
+let ADS_COOLDOWN = false;
+
+async function watchAd() {
+  if (ADS_COOLDOWN) return;
+
+  const btn = document.getElementById("adsBtn");
+  ADS_COOLDOWN = true;
+  btn.disabled = true;
+
+  let timeLeft = 15;
+  btn.innerText = `⏳ Watching Ad (${timeLeft}s)`;
+
+  const timer = setInterval(() => {
+    timeLeft--;
+    btn.innerText = `⏳ Watching Ad (${timeLeft}s)`;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      finishAdWatch();
+    }
+  }, 1000);
+}
+
+async function finishAdWatch() {
+  const btn = document.getElementById("adsBtn");
+
+  try {
+    const res = await fetch("/api/ads/watch", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (data.error) {
+      showStatus("❌ " + data.error);
+      return;
+    }
+
+    USER.energy = data.energy;
+    updateUI();
+    showStatus("⚡ +Energy from Ad!");
+
+    if (window.playSound) playSound("winSound");
+
+  } catch {
+    showStatus("❌ Network error");
+  } finally {
+    ADS_COOLDOWN = false;
+    btn.disabled = false;
+    btn.innerText = "📺 Watch Ad → +Energy";
+  }
+}
+
+
