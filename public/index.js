@@ -167,6 +167,8 @@ function startScratch() {
 
 /* ================= CLAIM SCRATCH RESULT ================= */
 async function claimScratchReward() {
+  showStatus("🎁 Checking reward...");
+
   try {
     const res = await fetch("/api/scratch", {
       method: "POST",
@@ -174,49 +176,37 @@ async function claimScratchReward() {
     });
 
     const data = await res.json();
-
     if (data.error) {
       showStatus("❌ " + data.error);
-      return null;
+      return;
     }
 
-    const oldBalance = USER.balance;
+    const rewardBox = document.getElementById("scratchReward");
 
-    // 🔄 UPDATE USER STATE (SAFE)
+    // 🔽 NUNA ABIN DA AKA SAMU A CIKIN KATI
+    if (rewardBox && data.reward) {
+      if (data.reward.points > 0) {
+        rewardBox.innerText = `🎉 +${data.reward.points} Points`;
+        if (window.spawnCoins) spawnCoins(12);
+
+      } else if (data.reward.energy > 0) {
+        rewardBox.innerText = `⚡ +${data.reward.energy} Energy`;
+
+      } else {
+        rewardBox.innerText = "🙂 No reward, try again!";
+      }
+    }
+
+    // 🔄 update user
     USER.balance = Number(data.balance) || USER.balance;
     USER.energy  = Number(data.energy)  || USER.energy;
     USER.level   = getLevel(USER.balance);
 
     updateUI();
+    showStatus("🎟️ Scratch completed");
 
-    /* ================= RESULT UI ================= */
-    const resultBox  = document.getElementById("resultBox");
-    const resultText = document.getElementById("resultText");
-
-    if (resultBox && resultText && data.reward) {
-      if (data.reward.points > 0) {
-        resultText.innerText = `🎉 +${data.reward.points} Points`;
-        if (window.spawnCoins) spawnCoins(12);
-
-      } else if (data.reward.energy > 0) {
-        resultText.innerText = `⚡ +${data.reward.energy} Energy`;
-
-      } else {
-        resultText.innerText = "🙂 No reward, try again!";
-      }
-
-      resultBox.classList.remove("hidden");
-    }
-
-    // 📈 LEVEL UP CHECK
-    checkLevelUp(oldBalance, USER.balance);
-
-    return data.reward;
-
-  } catch (err) {
-    console.error("SCRATCH ERROR:", err);
+  } catch {
     showStatus("❌ Network error");
-    return null;
   }
 }
 
