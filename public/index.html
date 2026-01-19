@@ -5,62 +5,51 @@
   <title>Scratch Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- THEME -->
+  <meta name="theme-color" content="#ffd700" />
+
   <!-- STYLE -->
   <link rel="stylesheet" href="/style.css" />
-
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#ffd700" />
 </head>
 <body>
 
-  <!-- ===== TITLE ===== -->
+  <!-- ===== APP TITLE ===== -->
   <h2 class="title">🎟️ Scratch Game</h2>
 
   <!-- ===== STATUS ===== -->
   <p id="statusMsg" class="status hidden"></p>
 
-  <!-- ===== ENERGY ===== -->
-  <div class="energy-box">
-    <span id="energyText">Energy: 0</span>
-    <div class="energy-bar">
-      <div id="energyFill"></div>
-    </div>
+  <!-- ===== ENERGY BAR ===== -->
+  <div class="energy-bar">
+    <div id="energyFill"></div>
   </div>
+  <p id="energyText">Energy: 0</p>
 
   <!-- ===== LEVEL ===== -->
   <p id="levelText">Level: 1</p>
 
-  <!-- ===== MAIN ACTION ===== -->
-  <div class="card">
-    <button id="scratchBtn">
-      🎟️ SCRATCH
-    </button>
-
-    <!-- ===== SCRATCH CARD ===== -->
-<div id="scratchSection" class="scratch-wrapper hidden">
-  <canvas id="scratchCanvas" width="260" height="140"></canvas>
-  <p class="scratch-text">🎟️ Scratch to Win</p>
-</div>
-
-<button id="scratchBtn">🎟️ SCRATCH</button>
-
-    <p class="hint">
-      Watch ads to get energy
-    </p>
+  <!-- ===== SCRATCH AREA ===== -->
+  <div id="scratchSection" class="scratch-card hidden">
+    <canvas id="scratchCanvas" width="260" height="160"></canvas>
+    <p class="scratch-label">Scratch to Win</p>
   </div>
 
-  <!-- ===== DAILY ===== -->
-  <button id="dailyBtn">
+  <!-- ===== SCRATCH BUTTON ===== -->
+  <button id="scratchBtn" class="primary-btn">
+    🎟️ SCRATCH
+  </button>
+
+  <!-- ===== DAILY ENERGY ===== -->
+  <button id="dailyBtn" class="secondary-btn">
     🎁 Daily Free Energy
   </button>
 
-  <!-- ===== ADS ===== -->
-  <button id="adsBtn">
+  <!-- ===== WATCH ADS ===== -->
+  <button id="adsBtn" class="secondary-btn">
     📺 Watch Ad → +Energy
   </button>
 
-  <!-- ===== LEGAL ===== -->
+  <!-- ===== FOOTER ===== -->
   <p class="legal">
     <a href="/privacy.html">Privacy</a> ·
     <a href="/terms.html">Terms</a>
@@ -69,6 +58,5 @@
   <!-- ===== SCRIPTS ===== -->
   <script src="/index.js"></script>
   <script src="/script.js"></script>
-
 </body>
 </html>
