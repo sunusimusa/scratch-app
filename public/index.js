@@ -8,7 +8,7 @@ let INIT_TRIES = 0;
 const MAX_INIT_TRIES = 5;
 let LUCK = 0;          // 0 – 100
 const MAX_LUCK = 100;
-
+let SCRATCHING = false;
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
   initUser();
@@ -173,12 +173,31 @@ async function finishAd() {
 
 /* ================= START SCRATCH ================= */
 function startScratch() {
-  if (!USER || USER.energy <= 0) {
-    showStatus("⚡ Get energy first");
+  // ❌ idan yana scratching
+  if (SCRATCHING) return;
+
+  // ❌ idan babu user
+  if (!USER) {
+    showStatus("⏳ Loading...");
     return;
   }
 
+  // ❌ idan babu energy
+  if (USER.energy <= 0) {
+    showStatus("⚡ No energy left");
+    updateUI();
+    return;
+  }
+
+  // 🔒 lock scratch
+  SCRATCHING = true;
+
   showStatus("🎟️ Scratch now!");
+
+  // rage energy nan take (UI ONLY)
+  USER.energy -= 1;
+  updateUI();
+
   if (window.initScratchCard) {
     window.initScratchCard();
   }
