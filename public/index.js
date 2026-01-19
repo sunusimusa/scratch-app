@@ -183,33 +183,34 @@ async function claimScratchReward() {
 
     const rewardBox = document.getElementById("scratchReward");
 
-    const oldPoints = Number(USER.balance) || 0;
-
     // 🔄 UPDATE USER STATE (SAFE)
-    USER.balance = Number(data.balance ?? USER.balance);
-    USER.energy  = Number(data.energy  ?? USER.energy);
-    USER.level   = Number(data.level   ?? USER.level);
+    if (typeof data.balance === "number") {
+      USER.balance = data.balance;
+    }
+
+    if (typeof data.energy === "number") {
+      USER.energy = data.energy;
+    }
+
+    if (typeof data.level === "number") {
+      USER.level = data.level;
+    }
 
     updateUI();
 
     // 🎁 SHOW REWARD A CIKIN KATI
     if (rewardBox) {
       if (data.reward?.points > 0) {
-        rewardBox.innerText = `🎉 +${data.reward.points} Points`;
+        rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
         if (window.spawnCoins) spawnCoins(10);
         if (window.playSound) playSound("winSound");
 
-        // 🔢 animate total points
-        if (window.animatePoints) {
-          animatePoints(oldPoints, USER.balance);
-        }
-
       } else if (data.reward?.energy > 0) {
-        rewardBox.innerText = `⚡ +${data.reward.energy} Energy`;
+        rewardBox.innerText = `⚡ +${data.reward.energy} ENERGY`;
         if (window.playSound) playSound("winSound");
 
       } else {
-        rewardBox.innerText = "🙂 No reward, try again!";
+        rewardBox.innerText = "🙂 NO REWARD";
       }
     }
 
