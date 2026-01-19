@@ -188,3 +188,78 @@ button:disabled {
   from { transform: translate(-50%, 20px); opacity: 0; }
   to   { transform: translate(-50%, 0); opacity: 1; }
 }
+
+/* =====================================================
+   BONUS POPUP (30 MIN SERVER BONUS)
+===================================================== */
+
+.bonus-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.bonus-overlay.hidden {
+  display: none;
+}
+
+.bonus-card {
+  width: 300px;
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+  border-radius: 20px;
+  padding: 22px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  animation: bonusPop 0.4s ease;
+}
+
+@keyframes bonusPop {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bonus-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ff5722;
+  margin-bottom: 10px;
+}
+
+.bonus-text {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 14px;
+}
+
+#bonusReward {
+  font-size: 22px;
+  font-weight: 900;
+  color: #2e7d32;
+  margin-bottom: 18px;
+}
+
+.bonus-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ffd700, #ff9800);
+  color: #000;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.bonus-btn:active {
+  transform: scale(0.97);
+}
