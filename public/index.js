@@ -130,14 +130,16 @@ async function claimDailyEnergy() {
 
 /* ================= START SCRATCH ================= */
 function startScratch() {
-  if (!USER || USER.energy <= 0 || SCRATCH_COOLDOWN) {
+  if (!USER || USER.energy <= 0) {
+    playSound("errorSound");
     showStatus("⚡ Get energy first");
-    if (window.playSound) playSound("errorSound");
     return;
   }
 
+  // 🔊 EXACT LIKE OPEN BOX
+  playSound("clickSound");
+
   showStatus("🎟️ Scratch now!");
-  if (window.playSound) playSound("clickSound");
 
   if (window.initScratchCard) {
     window.initScratchCard();
@@ -172,21 +174,20 @@ async function claimScratchReward() {
     updateUI();
 
     /* 🎁 SHOW REWARD A CIKIN KATI */
-    if (rewardBox) {
-      if (data.reward?.points > 0) {
-        rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
-        if (window.spawnCoins) spawnCoins(10);
-        if (window.playSound) playSound("winSound");
+     if (data.reward?.points > 0) {
+  rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
+  playSound("winSound");
+  if (window.spawnCoins) spawnCoins(10);
 
-      } else if (data.reward?.energy > 0) {
-        rewardBox.innerText = `⚡ +${data.reward.energy} ENERGY`;
-        if (window.playSound) playSound("winSound");
+} else if (data.reward?.energy > 0) {
+  rewardBox.innerText = `⚡ +${data.reward.energy} ENERGY`;
+  playSound("winSound");
 
-      } else {
-        rewardBox.innerText = "🙂 NO REWARD";
-        if (window.playSound) playSound("loseSound");
-      }
-    }
+} else {
+  rewardBox.innerText = "🙂 NO REWARD";
+  playSound("loseSound");
+     }
+    
 
     checkLevelUp(oldBalance, USER.balance);
     showStatus("🎟️ Scratch complete!");
