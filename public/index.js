@@ -35,21 +35,23 @@ async function initUser() {
       credentials: "include"
     });
 
-    const refEl =
-    document.getElementById("referralCode");
-    if (refEl && data.referralCode) {
-    refEl.innerText = data.referralCode;
-   }
+    const data = await res.json(); // ✅ ka fara karɓar data
 
-    const data = await res.json();
     if (!data || !data.success) throw 1;
 
+    // ================= USER STATE =================
     USER = {
       balance: Number(data.points) || 0,
       energy:  Number(data.energy) || 0,
       level:   Number(data.level)  || 1,
       luck:    Number(data.luck)   || 0
     };
+
+    // ================= REFERRAL CODE =================
+    const refEl = document.getElementById("referralCode");
+    if (refEl && data.referralCode) {
+      refEl.innerText = data.referralCode;
+    }
 
     updateUI();
     showStatus("✅ Ready");
