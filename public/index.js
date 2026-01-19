@@ -200,26 +200,47 @@ async function claimScratchReward() {
       return;
     }
 
+    // 🔄 UPDATE USER STATE (SAFE)
     USER.balance = Number(data.balance) || USER.balance;
     USER.energy  = Number(data.energy)  || USER.energy;
     USER.level   = Number(data.level)   || USER.level;
 
-    updateUI();
-
     const rewardBox = document.getElementById("scratchReward");
+
     if (rewardBox) {
-      if (data.reward?.points > 0) {
+
+      // 🟢 BIG WIN (reset luck)
+      if (data.reward?.points >= 20) {
+        rewardBox.innerText = `🎉 BIG WIN +${data.reward.points} POINTS`;
+        LUCK = 0;
+
+      }
+      // 🟡 NORMAL POINT WIN
+      else if (data.reward?.points > 0) {
         rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
-      } else if (data.reward?.energy > 0) {
+        LUCK = Math.max(0, LUCK - 20);
+
+      }
+      // 🔵 ENERGY WIN
+      else if (data.reward?.energy > 0) {
         rewardBox.innerText = `⚡ +${data.reward.energy} ENERGY`;
-      } else {
+        LUCK = Math.max(0, LUCK - 10);
+
+      }
+      // 🔴 NO REWARD
+      else {
         rewardBox.innerText = "🙂 NO REWARD";
+        LUCK = Math.min(MAX_LUCK, LUCK + 15);
       }
     }
 
+    // 🔄 UPDATE UI SAU DAYA KAWAI
+    updateUI();
+
     showStatus("🎟️ Scratch complete!");
 
-  } catch {
+  } catch (err) {
+    console.error(err);
     showStatus("❌ Network error");
   }
 }
