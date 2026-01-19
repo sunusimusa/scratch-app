@@ -186,27 +186,39 @@ app.post("/api/scratch", async (req, res) => {
       return res.json({ error: "NO_ENERGY" });
     }
 
-    // 🔥 amfani da energy 1
+    // ⚡ rage energy 1
     user.energy -= 1;
 
-    // 🎁 rewards (POINTS BA YAWA)
-    const rewards = [1, 2, 5, 10];
-    const reward = rewards[Math.floor(Math.random() * rewards.length)];
+    // 🎁 REWARD LOGIC (BA ZERO KULLUM BA)
+    const roll = Math.random() * 100;
 
-    const oldPoints = user.points;
+    let reward = { points: 0, energy: 0 };
 
-    user.points += reward;
-    user.level = calcLevel(user.points);
+    if (roll < 50) {
+      reward.points = 5;        // 50%
+      user.points += 5;
+    } else if (roll < 80) {
+      reward.points = 10;       // 30%
+      user.points += 10;
+    } else if (roll < 95) {
+      reward.energy = 2;        // 15%
+      user.energy += 2;
+    } else {
+      reward.points = 25;       // 5% jackpot
+      user.points += 25;
+    }
+
+    // 🔼 level daga points
+    user.level = Math.min(1000, Math.floor(user.points / 100) + 1);
 
     await user.save();
 
     res.json({
       success: true,
-      reward,
-      points: user.points,
+      reward,                 // 🔥 MUHIMMI
+      balance: user.points,
       energy: user.energy,
-      level: user.level,
-      levelUp: user.level > calcLevel(oldPoints)
+      level: user.level
     });
 
   } catch (err) {
