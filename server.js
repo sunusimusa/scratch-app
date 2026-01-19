@@ -249,6 +249,47 @@ app.post("/api/scratch", async (req, res) => {
   }
 });
 
+/* =====================================================
+   API: 30 MIN BONUS ENERGY
+===================================================== */
+app.post("/api/bonus/check", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.json({ error: "NO_USER" });
+
+    const NOW = Date.now();
+    const BONUS_INTERVAL = 30 * 60 * 1000; // 30 minutes
+
+    if (NOW - user.lastBonusAt < BONUS_INTERVAL) {
+      return res.json({
+        bonusAvailable: false,
+        nextIn: BONUS_INTERVAL - (NOW - user.lastBonusAt)
+      });
+    }
+
+    // 🎲 RANDOM ENERGY 1–5
+    const reward = Math.floor(Math.random() * 5) + 1;
+
+    user.energy += reward;
+    user.lastBonusAt = NOW;
+
+    await user.save();
+
+    res.json({
+      bonusAvailable: true,
+      reward,
+      energy: user.energy
+    });
+
+  } catch (err) {
+    console.error("BONUS ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
