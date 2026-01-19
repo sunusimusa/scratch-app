@@ -35,6 +35,12 @@ async function initUser() {
       credentials: "include"
     });
 
+    const refEl =
+    document.getElementById("referralCode");
+    if (refEl && data.referralCode) {
+    refEl.innerText = data.referralCode;
+   }
+
     const data = await res.json();
     if (!data || !data.success) throw 1;
 
@@ -55,6 +61,51 @@ async function initUser() {
     } else {
       showStatus("❌ Unable to initialize user");
     }
+  }
+}
+
+function copyReferral() {
+  const code = document.getElementById("referralCode")?.innerText;
+  if (!code || code === "----") return;
+
+  navigator.clipboard.writeText(code);
+  showStatus("📋 Referral code copied!");
+}
+
+async function claimReferralCode() {
+  const input = document.getElementById("refInput");
+  const code = input?.value.trim();
+
+  if (!code) {
+    showStatus("❌ Enter referral code");
+    return;
+  }
+
+  showStatus("🎁 Claiming referral...");
+
+  try {
+    const res = await fetch("/api/referral/claim", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ code })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      showStatus("❌ Invalid or used code");
+      return;
+    }
+
+    USER.energy = data.userEnergy;
+    updateUI();
+
+    input.value = "";
+    showStatus("🎉 Referral bonus received!");
+
+  } catch {
+    showStatus("❌ Network error");
   }
 }
 
