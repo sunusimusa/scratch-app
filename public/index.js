@@ -214,6 +214,47 @@ function showAchievement(ach) {
   }, 3000);
 }
 
+/* =====================================================
+   SERVER BONUS POPUP (30 MIN)
+===================================================== */
+
+async function checkServerBonus() {
+  try {
+    const res = await fetch("/api/bonus/check", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (!data.bonusAvailable) return;
+
+    showBonusPopup(data.reward, data.energy);
+
+  } catch (err) {
+    console.warn("Bonus check failed");
+  }
+}
+
+function showBonusPopup(reward, newEnergy) {
+  const popup = document.getElementById("bonusPopup");
+  const rewardText = document.getElementById("bonusReward");
+  const btn = document.getElementById("bonusBtn");
+
+  if (!popup) return;
+
+  rewardText.innerText = `⚡ +${reward} Energy`;
+  popup.classList.remove("hidden");
+
+  btn.onclick = () => {
+    popup.classList.add("hidden");
+    USER.energy = newEnergy;
+    updateUI();
+  };
+}
+
+// 🔁 check after app loads
+setTimeout(checkServerBonus, 4000);
+
 /* ================= CLAIM SCRATCH ================= */
 async function claimScratchReward() {
   showStatus("🎁 Checking reward...");
