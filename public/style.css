@@ -55,22 +55,30 @@ body {
 
 /* ===== SCRATCH CARD ===== */
 .scratch-card {
-  width: 260px;
-  height: 160px;
-  margin: 20px auto;
-  border-radius: 18px;
-  background: var(--card);
-  box-shadow: 0 20px 40px rgba(0,0,0,.6);
   position: relative;
+  width: 260px;
+  height: 140px;
+  border-radius: 18px;
   overflow: hidden;
+  background: #1c1c28;
 }
 
-.scratch-label {
+#scratchReward {
   position: absolute;
-  bottom: 8px;
-  width: 100%;
-  font-size: 13px;
-  color: var(--muted);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffd700;
+  z-index: 1; /* ƙasa */
+}
+
+#scratchCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* sama */
 }
 
 /* ===== BUTTONS ===== */
