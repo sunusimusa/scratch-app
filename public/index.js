@@ -1,16 +1,20 @@
 /* =====================================================
-   INDEX.JS – SCRATCH GAME CORE (FINAL FULL)
-   SIMPLE • STABLE • ANDROID & RENDER SAFE
+   INDEX.JS – SCRATCH GAME CORE (FINAL • STABLE)
+   ANDROID • WEBVIEW • RENDER SAFE
 ===================================================== */
 
+/* ================= GLOBAL STATE ================= */
 let USER = null;
 let INIT_TRIES = 0;
 const MAX_INIT_TRIES = 5;
 
+let SCRATCH_COOLDOWN = false;
+let ADS_COOLDOWN = false;
+
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
-  initUser();
   bindUI();
+  initUser();
 });
 
 /* ================= UI BIND ================= */
@@ -37,7 +41,7 @@ async function initUser() {
 
     USER = {
       balance: Number(data.balance) || 0,
-      energy: Number(data.energy) || 0
+      energy:  Number(data.energy)  || 0
     };
 
     USER.level = getLevel(USER.balance);
@@ -51,6 +55,7 @@ async function initUser() {
       setTimeout(initUser, 1000);
     } else {
       showStatus("❌ Unable to initialize user");
+      if (window.playSound) playSound("errorSound");
     }
   }
 }
@@ -74,7 +79,7 @@ function updateUI() {
   }
 
   if (scratchBtn) {
-    scratchBtn.disabled = USER.energy <= 0;
+    scratchBtn.disabled = USER.energy <= 0 || SCRATCH_COOLDOWN;
     scratchBtn.innerText =
       USER.energy > 0 ? "🎟️ SCRATCH" : "⚡ Get Energy";
   }
@@ -102,62 +107,36 @@ async function claimDailyEnergy() {
 
     if (data.error === "DAILY_ALREADY_CLAIMED") {
       showStatus("⏳ Come back tomorrow");
+      if (window.playSound) playSound("errorSound");
       return;
     }
 
     if (data.error) {
       showStatus("❌ " + data.error);
+      if (window.playSound) playSound("errorSound");
       return;
     }
 
     USER.energy = data.energy;
     updateUI();
     showStatus("⚡ +5 Daily Energy");
-
     if (window.playSound) playSound("winSound");
 
   } catch {
     showStatus("❌ Network error");
-  }
-}
-
-/* ================= WATCH AD ================= */
-async function watchAd() {
-  showStatus("📺 Watching ad...");
-
-  try {
-    const res = await fetch("/api/ads/watch", {
-      method: "POST",
-      credentials: "include"
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      showStatus("❌ " + data.error);
-      return;
-    }
-
-    USER.energy = data.energy;
-    updateUI();
-    showStatus("⚡ Energy added!");
-
-    if (window.playSound) playSound("winSound");
-
-  } catch {
-    showStatus("❌ Network error");
+    if (window.playSound) playSound("errorSound");
   }
 }
 
 /* ================= START SCRATCH ================= */
 function startScratch() {
-  if (!USER || USER.energy <= 0) {
+  if (!USER || USER.energy <= 0 || SCRATCH_COOLDOWN) {
     showStatus("⚡ Get energy first");
+    if (window.playSound) playSound("errorSound");
     return;
   }
 
   showStatus("🎟️ Scratch now!");
-
   if (window.playSound) playSound("clickSound");
 
   if (window.initScratchCard) {
@@ -178,27 +157,21 @@ async function claimScratchReward() {
     const data = await res.json();
     if (data.error) {
       showStatus("❌ " + data.error);
+      if (window.playSound) playSound("errorSound");
       return;
     }
 
     const rewardBox = document.getElementById("scratchReward");
+    const oldBalance = USER.balance;
 
-    // 🔄 UPDATE USER STATE (SAFE)
-    if (typeof data.balance === "number") {
-      USER.balance = data.balance;
-    }
+    if (typeof data.balance === "number") USER.balance = data.balance;
+    if (typeof data.energy === "number")  USER.energy  = data.energy;
 
-    if (typeof data.energy === "number") {
-      USER.energy = data.energy;
-    }
-
-    if (typeof data.level === "number") {
-      USER.level = data.level;
-    }
+    USER.level = getLevel(USER.balance);
 
     updateUI();
 
-    // 🎁 SHOW REWARD A CIKIN KATI
+    /* 🎁 SHOW REWARD A CIKIN KATI */
     if (rewardBox) {
       if (data.reward?.points > 0) {
         rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
@@ -211,22 +184,23 @@ async function claimScratchReward() {
 
       } else {
         rewardBox.innerText = "🙂 NO REWARD";
+        if (window.playSound) playSound("loseSound");
       }
     }
 
+    checkLevelUp(oldBalance, USER.balance);
     showStatus("🎟️ Scratch complete!");
 
-    // ⏳ START COOLDOWN
     startCooldown(3);
 
   } catch (err) {
     console.error(err);
     showStatus("❌ Network error");
+    if (window.playSound) playSound("errorSound");
   }
 }
 
-let SCRATCH_COOLDOWN = false;
-
+/* ================= SCRATCH COOLDOWN ================= */
 function startCooldown(seconds = 3) {
   const btn = document.getElementById("scratchBtn");
   const text = document.getElementById("cooldownText");
@@ -234,7 +208,6 @@ function startCooldown(seconds = 3) {
 
   SCRATCH_COOLDOWN = true;
   btn.disabled = true;
-  btn.classList.add("cooldown");
 
   let left = seconds;
   text.innerText = `⏳ Wait ${left}s`;
@@ -242,63 +215,19 @@ function startCooldown(seconds = 3) {
 
   const timer = setInterval(() => {
     left--;
-
     if (left <= 0) {
       clearInterval(timer);
       SCRATCH_COOLDOWN = false;
       btn.disabled = false;
-      btn.classList.remove("cooldown");
       text.classList.add("hidden");
+      updateUI();
     } else {
       text.innerText = `⏳ Wait ${left}s`;
     }
   }, 1000);
 }
 
-function animatePoints(from, to) {
-  const el = document.getElementById("pointsText");
-  if (!el) return;
-
-  const duration = 600;
-  const start = performance.now();
-
-  function tick(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const value = Math.floor(from + (to - from) * progress);
-    el.innerText = `Points: ${value}`;
-
-    if (progress < 1) {
-      requestAnimationFrame(tick);
-    } else {
-      el.innerText = `Points: ${to}`;
-      el.classList.add("points-bump");
-      setTimeout(() => el.classList.remove("points-bump"), 300);
-    }
-  }
-
-  requestAnimationFrame(tick);
-}
-
-/* ================= LEVEL SYSTEM ================= */
-function getLevel(balance) {
-  const b = Number(balance) || 0;
-  return Math.min(1000, Math.floor(b / 100) + 1);
-}
-
-function checkLevelUp(oldBalance, newBalance) {
-  const oldLevel = getLevel(oldBalance);
-  const newLevel = getLevel(newBalance);
-
-  if (newLevel > oldLevel) {
-    showStatus(`⬆️ Level Up! Level ${newLevel}`);
-
-    if (window.launchConfetti) launchConfetti(30);
-    if (window.playSound) playSound("winSound");
-  }
-}
-
-let ADS_COOLDOWN = false;
-
+/* ================= WATCH AD (15s) ================= */
 async function watchAd() {
   if (ADS_COOLDOWN) return;
 
@@ -312,7 +241,6 @@ async function watchAd() {
   const timer = setInterval(() => {
     timeLeft--;
     btn.innerText = `⏳ Watching Ad (${timeLeft}s)`;
-
     if (timeLeft <= 0) {
       clearInterval(timer);
       finishAdWatch();
@@ -332,17 +260,18 @@ async function finishAdWatch() {
     const data = await res.json();
     if (data.error) {
       showStatus("❌ " + data.error);
+      if (window.playSound) playSound("errorSound");
       return;
     }
 
     USER.energy = data.energy;
     updateUI();
     showStatus("⚡ +Energy from Ad!");
-
     if (window.playSound) playSound("winSound");
 
   } catch {
     showStatus("❌ Network error");
+    if (window.playSound) playSound("errorSound");
   } finally {
     ADS_COOLDOWN = false;
     btn.disabled = false;
@@ -350,4 +279,19 @@ async function finishAdWatch() {
   }
 }
 
+/* ================= LEVEL SYSTEM ================= */
+function getLevel(balance) {
+  const b = Number(balance) || 0;
+  return Math.min(1000, Math.floor(b / 100) + 1);
+}
 
+function checkLevelUp(oldBalance, newBalance) {
+  const oldLevel = getLevel(oldBalance);
+  const newLevel = getLevel(newBalance);
+
+  if (newLevel > oldLevel) {
+    showStatus(`⬆️ Level Up! Level ${newLevel}`);
+    if (window.launchConfetti) launchConfetti(30);
+    if (window.playSound) playSound("winSound");
+  }
+     }
