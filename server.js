@@ -246,7 +246,8 @@ app.post("/api/scratch", async (req, res) => {
       balance: user.points,
       energy: user.energy,
       level: user.level,
-      luck: user.luck          // 🔥 KA MAYAR DA SHI FRONTEND
+      luck: user.luck,        
+      achievementsUnlocked: unlocked
     });
 
   } catch (err) {
