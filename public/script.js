@@ -1,22 +1,27 @@
 /* =====================================================
-   SCRATCH CARD – REAL RUB / SWIPE (FINAL FULL)
-   ANDROID + WEBVIEW SAFE
+   SCRATCH CARD – REAL RUB / SWIPE (FINAL STABLE)
+   ANDROID + WEBVIEW + PLAY STORE SAFE
+   ❌ NO DUPLICATES
+   ❌ NO BUGS
+   ✅ AUTO CLOSE
+   ✅ REAL SCRATCH
 ===================================================== */
 
+/* ================= ELEMENTS ================= */
 const canvas  = document.getElementById("scratchCanvas");
 const section = document.getElementById("scratchSection");
 
 if (!canvas || !section) {
-  console.warn("Scratch elements missing");
+  console.warn("⚠️ Scratch elements not found");
 }
 
 /* ================= STATE ================= */
 let ctx, W, H;
 let scratching = false;
-let scratchedDone = false;
-let scratchReady = false;
+let scratched = false;
+let ready = false;
 
-/* ================= INIT ================= */
+/* ================= INIT SCRATCH ================= */
 function initScratchCard() {
   if (!canvas) return;
 
@@ -24,10 +29,10 @@ function initScratchCard() {
   W = canvas.width;
   H = canvas.height;
 
-  // reset state
+  // reset flags
   scratching = false;
-  scratchedDone = false;
-  scratchReady = true;
+  scratched = false;
+  ready = true;
 
   // reset canvas
   ctx.globalCompositeOperation = "source-over";
@@ -36,47 +41,46 @@ function initScratchCard() {
   // cover layer
   ctx.fillStyle = "#9e9e9e";
   ctx.fillRect(0, 0, W, H);
-
   ctx.globalCompositeOperation = "destination-out";
 
-  // show section
+  // show UI
   section.classList.remove("hidden");
   canvas.style.display = "block";
 
-  // unlock sounds (Android)
   if (window.playSound) playSound("clickSound");
 }
 
-/* expose globally */
+/* expose */
 window.initScratchCard = initScratchCard;
 
 /* ================= DRAW ================= */
-function scratch(x, y) {
-  if (!scratchReady || scratchedDone) return;
+function drawScratch(x, y) {
+  if (!ready || scratched) return;
 
   ctx.beginPath();
   ctx.arc(x, y, 18, 0, Math.PI * 2);
   ctx.fill();
 }
 
-/* ================= CHECK % ================= */
-function scratchedPercent() {
-  const img = ctx.getImageData(0, 0, W, H).data;
+/* ================= PERCENT ================= */
+function getPercent() {
+  const data = ctx.getImageData(0, 0, W, H).data;
   let cleared = 0;
 
-  for (let i = 3; i < img.length; i += 4) {
-    if (img[i] === 0) cleared++;
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] === 0) cleared++;
   }
 
   return (cleared / (W * H)) * 100;
 }
 
+/* ================= CHECK ================= */
 function checkScratch() {
-  if (!scratchReady || scratchedDone) return;
+  if (!ready || scratched) return;
 
-  if (scratchedPercent() >= 60) {
-    scratchedDone = true;
-    scratchReady = false;
+  if (getPercent() >= 60) {
+    scratched = true;
+    ready = false;
     finishScratch();
   }
 }
@@ -93,21 +97,16 @@ async function finishScratch() {
 
 /* ================= MOUSE ================= */
 canvas.addEventListener("mousedown", () => {
-  if (!scratchReady) return;
+  if (!ready) return;
   scratching = true;
 });
 
-canvas.addEventListener("mouseup", () => {
-  scratching = false;
-});
-
-canvas.addEventListener("mouseleave", () => {
-  scratching = false;
-});
+canvas.addEventListener("mouseup", () => scratching = false);
+canvas.addEventListener("mouseleave", () => scratching = false);
 
 canvas.addEventListener("mousemove", e => {
-  if (!scratching || scratchedDone) return;
-  scratch(e.offsetX, e.offsetY);
+  if (!scratching || scratched) return;
+  drawScratch(e.offsetX, e.offsetY);
   checkScratch();
 });
 
@@ -115,7 +114,7 @@ canvas.addEventListener("mousemove", e => {
 canvas.addEventListener(
   "touchstart",
   e => {
-    if (!scratchReady) return;
+    if (!ready) return;
     e.preventDefault();
     scratching = true;
   },
@@ -133,22 +132,20 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "touchcancel",
-  () => {
-    scratching = false;
-  },
+  () => scratching = false,
   { passive: false }
 );
 
 canvas.addEventListener(
   "touchmove",
   e => {
-    if (!scratching || scratchedDone) return;
+    if (!scratching || scratched) return;
     e.preventDefault();
 
     const rect = canvas.getBoundingClientRect();
     const t = e.touches[0];
 
-    scratch(
+    drawScratch(
       t.clientX - rect.left,
       t.clientY - rect.top
     );
@@ -162,7 +159,7 @@ canvas.addEventListener(
    VISUAL FEEDBACK
 ===================================================== */
 
-/* ================= COIN FLY ================= */
+/* ================= COINS ================= */
 function spawnCoins(count = 12) {
   const target = document.getElementById("balance");
   if (!target) return;
@@ -183,7 +180,7 @@ function spawnCoins(count = 12) {
       coin.style.top  = rect.top + 10 + "px";
       coin.style.opacity = "0";
       coin.style.transform = "scale(0.5)";
-    }, 50);
+    }, 60);
 
     setTimeout(() => coin.remove(), 900);
   }
