@@ -1,5 +1,5 @@
 /* =====================================================
-   INDEX.JS – SCRATCH GAME CORE (FINAL CLEAN)
+   INDEX.JS – SCRATCH GAME CORE (FINAL FULL)
    SIMPLE • STABLE • ANDROID & RENDER SAFE
 ===================================================== */
 
@@ -33,12 +33,11 @@ async function initUser() {
     });
 
     const data = await res.json();
-    if (!data || !data.success) throw new Error("NO_USER");
+    if (!data || !data.success) throw 1;
 
     USER = {
-      ...data,
-      balance: data.balance ?? 0,
-      energy: data.energy ?? 0
+      balance: Number(data.balance) || 0,
+      energy: Number(data.energy) || 0
     };
 
     USER.level = getLevel(USER.balance);
@@ -46,10 +45,8 @@ async function initUser() {
     updateUI();
     showStatus("✅ Ready");
 
-  } catch (err) {
+  } catch {
     INIT_TRIES++;
-    console.warn("Init retry:", INIT_TRIES);
-
     if (INIT_TRIES < MAX_INIT_TRIES) {
       setTimeout(initUser, 1000);
     } else {
@@ -65,18 +62,15 @@ function updateUI() {
   const energyText = document.getElementById("energyText");
   const energyFill = document.getElementById("energyFill");
   const levelText  = document.getElementById("levelText");
+  const pointsText = document.getElementById("pointsText");
   const scratchBtn = document.getElementById("scratchBtn");
 
-  if (energyText) {
-    energyText.innerText = `Energy: ${USER.energy}`;
-  }
+  if (energyText) energyText.innerText = `Energy: ${USER.energy}`;
+  if (levelText)  levelText.innerText  = `Level: ${USER.level}`;
+  if (pointsText) pointsText.innerText = `Points: ${USER.balance}`;
 
   if (energyFill) {
     energyFill.style.width = Math.min(USER.energy * 10, 100) + "%";
-  }
-
-  if (levelText) {
-    levelText.innerText = `Level: ${USER.level}`;
   }
 
   if (scratchBtn) {
@@ -107,7 +101,7 @@ async function claimDailyEnergy() {
     const data = await res.json();
 
     if (data.error === "DAILY_ALREADY_CLAIMED") {
-      showStatus("⏳ Daily already claimed");
+      showStatus("⏳ Come back tomorrow");
       return;
     }
 
@@ -162,23 +156,17 @@ function startScratch() {
     return;
   }
 
-  // rage energy 1 (UI feedback kawai)
-  updateUI();
-
-  // bude scratch card (script.js)
-  if (window.initScratchCard) {
-    window.initScratchCard();
-  }
+  showStatus("🎟️ Scratch now!");
 
   if (window.playSound) playSound("clickSound");
 
-  showStatus("🎟️ Scratch now!");
+  if (window.initScratchCard) {
+    window.initScratchCard();
+  }
 }
 
 /* ================= CLAIM SCRATCH RESULT ================= */
 async function claimScratchReward() {
-  showStatus("🎁 Checking reward...");
-
   try {
     const res = await fetch("/api/scratch", {
       method: "POST",
@@ -188,33 +176,41 @@ async function claimScratchReward() {
     const data = await res.json();
     if (data.error) {
       showStatus("❌ " + data.error);
-      return;
+      return null;
     }
 
     const oldBalance = USER.balance;
 
-    USER.balance = data.balance;
-    USER.energy  = data.energy;
+    USER.balance = Number(data.balance) || USER.balance;
+    USER.energy  = Number(data.energy)  || USER.energy;
     USER.level   = getLevel(USER.balance);
 
     updateUI();
-    showStatus("🎉 You won!");
 
-    if (data.reward > 0 && window.spawnCoins) {
-      spawnCoins(Math.min(20, data.reward * 2));
+    // 🎁 SHOW RESULT MESSAGE
+    if (data.reward?.points > 0) {
+      showStatus(`🎉 +${data.reward.points} Points`);
+      if (window.spawnCoins) spawnCoins(12);
+    } else if (data.reward?.energy > 0) {
+      showStatus(`⚡ +${data.reward.energy} Energy`);
+    } else {
+      showStatus("🙂 Try again");
     }
 
     checkLevelUp(oldBalance, USER.balance);
 
+    return data.reward;
+
   } catch {
     showStatus("❌ Network error");
+    return null;
   }
 }
 
 /* ================= LEVEL SYSTEM ================= */
 function getLevel(balance) {
-  const safeBalance = Number(balance) || 0;
-  return Math.min(1000, Math.floor(safeBalance / 100) + 1);
+  const b = Number(balance) || 0;
+  return Math.min(1000, Math.floor(b / 100) + 1);
 }
 
 function checkLevelUp(oldBalance, newBalance) {
@@ -227,4 +223,4 @@ function checkLevelUp(oldBalance, newBalance) {
     if (window.launchConfetti) launchConfetti(30);
     if (window.playSound) playSound("winSound");
   }
-   }
+}
