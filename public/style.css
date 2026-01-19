@@ -169,3 +169,22 @@ button:disabled {
   background: linear-gradient(90deg, #4caf50, #ffd700);
   transition: width 0.3s ease;
 }
+
+#achievementPopup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1c1c28;
+  color: #ffd700;
+  padding: 16px 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  z-index: 999;
+  animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
+}
