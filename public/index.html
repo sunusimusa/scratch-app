@@ -8,18 +8,22 @@
   <!-- THEME -->
   <meta name="theme-color" content="#ffd700" />
 
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+
   <!-- STYLE -->
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
   <!-- =====================================================
-       SOUNDS (MATCH FILES EXACTLY)
+       SOUNDS (MATCH FILES IN /public/sounds)
+       ⚠️ KAR A SAKA levelSound SABODA BAKA DA FILE
   ====================================================== -->
-  <audio id="clickSound" src="/sounds/click.mp3"></audio>
-<audio id="winSound" src="/sounds/win.mp3"></audio>
-<audio id="levelSound" src="/sounds/level.mp3"></audio> ❌
-<audio id="errorSound" src="/sounds/error.mp3"></audio>
+  <audio id="clickSound" src="/sounds/click.mp3" preload="auto"></audio>
+  <audio id="winSound"   src="/sounds/win.mp3" preload="auto"></audio>
+  <audio id="loseSound"  src="/sounds/lose.mp3" preload="auto"></audio>
+  <audio id="errorSound" src="/sounds/error.mp3" preload="auto"></audio>
 
   <!-- ===== APP TITLE ===== -->
   <h2 class="title">🎟️ Scratch Game</h2>
@@ -42,7 +46,7 @@
   ====================================================== -->
   <div id="scratchSection" class="scratch-card hidden">
 
-    <!-- 🎁 REWARD TEXT (A ƘASA DA KATI) -->
+    <!-- 🎁 ABIN DA USER YA CI A CIKI -->
     <div id="scratchReward" class="scratch-reward">
       🎁 Scratch to Win
     </div>
@@ -76,7 +80,22 @@
     <a href="/terms.html">Terms</a>
   </p>
 
-  <!-- ===== SCRIPTS (ORDER IS IMPORTANT) ===== -->
+  <!-- =====================================================
+       SERVICE WORKER REGISTER (MUHIMMI GA SOUNDS)
+  ====================================================== -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js")
+        .then(() => console.log("✅ Service Worker Ready"))
+        .catch(err => console.error("❌ SW Error", err));
+    }
+  </script>
+
+  <!-- =====================================================
+       SCRIPTS (ORDER MUHIMMI)
+       script.js = scratch + sound engine
+       index.js  = game logic
+  ====================================================== -->
   <script src="/script.js"></script>
   <script src="/index.js"></script>
 
