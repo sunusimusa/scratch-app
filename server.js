@@ -186,27 +186,44 @@ app.post("/api/scratch", async (req, res) => {
       return res.json({ error: "NO_ENERGY" });
     }
 
-    // ⚡ rage energy 1
-    user.energy -= 1;
+    // ⚡ rage energy
+user.energy -= 1;
 
-    // 🎁 REWARD LOGIC (BA ZERO KULLUM BA)
-    const roll = Math.random() * 100;
+// 🎯 LUCK SYSTEM
+let guaranteedWin = user.luck >= 100;
 
-    let reward = { points: 0, energy: 0 };
+let reward = { points: 0, energy: 0 };
 
-    if (roll < 50) {
-      reward.points = 5;        // 50%
-      user.points += 5;
-    } else if (roll < 80) {
-      reward.points = 10;       // 30%
-      user.points += 10;
-    } else if (roll < 95) {
-      reward.energy = 2;        // 15%
-      user.energy += 2;
-    } else {
-      reward.points = 25;       // 5% jackpot
-      user.points += 25;
-    }
+if (guaranteedWin) {
+  reward.points = 15;
+  user.points += 15;
+  user.luck = 0;
+} else {
+  const roll = Math.random() * 100;
+
+  if (roll < 40) {
+    reward.points = 5;
+    user.points += 5;
+    user.luck = 0;
+  } 
+  else if (roll < 65) {
+    reward.points = 10;
+    user.points += 10;
+    user.luck = 0;
+  } 
+  else if (roll < 80) {
+    reward.energy = 2;
+    user.energy += 2;
+    user.luck = 0;
+  } 
+  else {
+    // ❌ NO REWARD
+    user.luck += 25;
+  }
+}
+
+if (user.luck > 100) user.luck = 100;
+    
 
     // 🔼 level daga points
     user.level = Math.min(1000, Math.floor(user.points / 100) + 1);
