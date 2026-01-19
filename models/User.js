@@ -8,17 +8,21 @@ const UserSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
   level:  { type: Number, default: 1 },
 
-  // 🆕 BONUS SYSTEM
-  lastBonusAt: { type: Number, default: 0 },
-
-  // existing
-  dailyEnergyDate: { type: String, default: "" },
-  adsWatchedToday: { type: Number, default: 0 },
-  lastAdsDate: { type: String, default: "" },
-
-  // 🆕 LUCK + ACHIEVEMENTS
+  // 🍀 Luck
   luck: { type: Number, default: 0 },
-  achievements: { type: [String], default: [] }
+
+  // 🎁 Referral
+  referralCode: { type: String, unique: true },
+  referredBy: { type: String, default: null },
+  referralsCount: { type: Number, default: 0 },
+
+  // 🏆 Achievements
+  achievements: { type: [String], default: [] },
+
+  // ⏰ Bonus / Daily
+  dailyEnergyDate: String,
+  lastAdsDate: String,
+  adsWatchedToday: { type: Number, default: 0 },
 
 }, { timestamps: true });
 
