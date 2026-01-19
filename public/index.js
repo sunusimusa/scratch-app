@@ -203,6 +203,23 @@ function startScratch() {
   }
 }
 
+function showAchievement(ach) {
+  const box = document.getElementById("achievementPopup");
+  const title = document.getElementById("achTitle");
+  const reward = document.getElementById("achReward");
+
+  if (!box) return;
+
+  title.innerText = `🏆 ${ach.title}`;
+  reward.innerText = `Reward: ${ach.reward}`;
+
+  box.classList.remove("hidden");
+
+  setTimeout(() => {
+    box.classList.add("hidden");
+  }, 3000);
+}
+
 /* ================= CLAIM SCRATCH ================= */
 async function claimScratchReward() {
   showStatus("🎁 Checking reward...");
@@ -216,6 +233,10 @@ async function claimScratchReward() {
     const data = await res.json();
 
     // ❌ idan server yace babu energy
+     if (Array.isArray(data.achievementsUnlocked)) {
+     data.achievementsUnlocked.forEach(showAchievement);
+     }
+     
     if (data.error === "NO_ENERGY") {
       showStatus("⚡ Energy finished");
       SCRATCHING = false;
