@@ -210,6 +210,37 @@ async function claimScratchReward() {
   }
 }
 
+startCooldown(3); // ⏳ 3 seconds cooldown
+
+let SCRATCH_COOLDOWN = false;
+
+function startCooldown(seconds = 3) {
+  const btn = document.getElementById("scratchBtn");
+  const text = document.getElementById("cooldownText");
+  if (!btn || !text) return;
+
+  SCRATCH_COOLDOWN = true;
+  btn.classList.add("cooldown");
+  btn.disabled = true;
+
+  let left = seconds;
+  text.innerText = `⏳ Wait ${left}s`;
+  text.classList.remove("hidden");
+
+  const timer = setInterval(() => {
+    left--;
+    if (left <= 0) {
+      clearInterval(timer);
+      SCRATCH_COOLDOWN = false;
+      btn.disabled = false;
+      btn.classList.remove("cooldown");
+      text.classList.add("hidden");
+    } else {
+      text.innerText = `⏳ Wait ${left}s`;
+    }
+  }, 1000);
+}
+
 /* ================= LEVEL SYSTEM ================= */
 function getLevel(balance) {
   const b = Number(balance) || 0;
