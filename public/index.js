@@ -183,27 +183,27 @@ async function claimScratchReward() {
 
     const rewardBox = document.getElementById("scratchReward");
 
-    // 🔽 NUNA ABIN DA AKA SAMU A CIKIN KATI
-    if (rewardBox && data.reward) {
-      if (data.reward.points > 0) {
-        rewardBox.innerText = `🎉 +${data.reward.points} Points`;
-        if (window.spawnCoins) spawnCoins(12);
-
-      } else if (data.reward.energy > 0) {
-        rewardBox.innerText = `⚡ +${data.reward.energy} Energy`;
-
-      } else {
-        rewardBox.innerText = "🙂 No reward, try again!";
-      }
-    }
-
-    // 🔄 update user
     USER.balance = Number(data.balance) || USER.balance;
     USER.energy  = Number(data.energy)  || USER.energy;
-    USER.level   = getLevel(USER.balance);
+    USER.level   = Number(data.level)   || USER.level;
 
     updateUI();
-    showStatus("🎟️ Scratch completed");
+
+    // 🎁 SHOW REWARD A CIKIN KATI
+    if (data.reward.points > 0) {
+      rewardBox.innerText = `🎉 +${data.reward.points} Points`;
+      if (window.spawnCoins) spawnCoins(10);
+      if (window.playSound) playSound("winSound");
+    } 
+    else if (data.reward.energy > 0) {
+      rewardBox.innerText = `⚡ +${data.reward.energy} Energy`;
+      if (window.playSound) playSound("winSound");
+    } 
+    else {
+      rewardBox.innerText = "🙂 Try again";
+    }
+
+    showStatus("🎟️ Scratch complete!");
 
   } catch {
     showStatus("❌ Network error");
