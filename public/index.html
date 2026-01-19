@@ -96,6 +96,33 @@
     📺 Watch Ad → +Energy
   </button>
 
+  <!-- ================= REFERRAL SECTION ================= -->
+<div class="referral-card">
+  <h3>🎁 Invite Friends</h3>
+
+  <p class="ref-desc">
+    Invite friends and earn:
+    <br />
+    ⚡ <b>+25 Energy</b> · ⭐ <b>+125 Points</b>
+  </p>
+
+  <div class="ref-code-box">
+    <span id="referralCode">----</span>
+    <button onclick="copyReferral()">Copy</button>
+  </div>
+
+  <input
+    type="text"
+    id="refInput"
+    placeholder="Enter referral code"
+    class="ref-input"
+  />
+
+  <button class="primary-btn" onclick="claimReferralCode()">
+    🎉 Claim Referral
+  </button>
+</div>
+
   <!-- ===== FOOTER ===== -->
   <p class="legal">
     <a href="/privacy.html">Privacy</a> ·
