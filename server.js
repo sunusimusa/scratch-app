@@ -47,7 +47,7 @@ function calcLevel(points) {
 }
 
 /* =====================================================
-   API: USER INIT (SOURCE OF TRUTH)
+   API: USER INIT
 ===================================================== */
 app.post("/api/user", async (req, res) => {
   try {
@@ -66,7 +66,9 @@ app.post("/api/user", async (req, res) => {
         sessionId: sid,
         energy: 0,
         points: 0,
-        level: 1
+        level: 1,
+        luck: 0,
+        achievements: []
       });
 
       res.cookie("sid", sid, {
@@ -83,7 +85,7 @@ app.post("/api/user", async (req, res) => {
       energy: user.energy,
       points: user.points,
       level: user.level,
-       luck: user.luck,
+      luck: user.luck,
       dailyClaimed: user.dailyEnergyDate === todayString()
     });
 
@@ -94,7 +96,7 @@ app.post("/api/user", async (req, res) => {
 });
 
 /* =====================================================
-   API: DAILY FREE ENERGY (5 / DAY)
+   API: DAILY ENERGY
 ===================================================== */
 app.post("/api/daily-energy", async (req, res) => {
   try {
@@ -105,23 +107,15 @@ app.post("/api/daily-energy", async (req, res) => {
     if (!user) return res.json({ error: "NO_USER" });
 
     const today = todayString();
-
     if (user.dailyEnergyDate === today) {
       return res.json({ error: "DAILY_ALREADY_CLAIMED" });
     }
 
-    const DAILY_ENERGY = 5;
-
-    user.energy += DAILY_ENERGY;
+    user.energy += 5;
     user.dailyEnergyDate = today;
-
     await user.save();
 
-    res.json({
-      success: true,
-      added: DAILY_ENERGY,
-      energy: user.energy
-    });
+    res.json({ success: true, energy: user.energy });
 
   } catch (err) {
     console.error("DAILY ENERGY ERROR:", err);
@@ -130,7 +124,7 @@ app.post("/api/daily-energy", async (req, res) => {
 });
 
 /* =====================================================
-   API: WATCH AD → ENERGY
+   API: WATCH AD
 ===================================================== */
 app.post("/api/ads/watch", async (req, res) => {
   try {
@@ -147,24 +141,15 @@ app.post("/api/ads/watch", async (req, res) => {
       user.lastAdsDate = today;
     }
 
-    const MAX_ADS = 20;
-    if (user.adsWatchedToday >= MAX_ADS) {
+    if (user.adsWatchedToday >= 20) {
       return res.json({ error: "ADS_LIMIT_REACHED" });
     }
 
-    const ENERGY_REWARD = 2;
-
-    user.energy += ENERGY_REWARD;
+    user.energy += 2;
     user.adsWatchedToday += 1;
-
     await user.save();
 
-    res.json({
-      success: true,
-      added: ENERGY_REWARD,
-      energy: user.energy,
-      adsWatchedToday: user.adsWatchedToday
-    });
+    res.json({ success: true, energy: user.energy });
 
   } catch (err) {
     console.error("ADS ERROR:", err);
@@ -173,7 +158,7 @@ app.post("/api/ads/watch", async (req, res) => {
 });
 
 /* =====================================================
-   API: SCRATCH (ENERGY → POINTS)
+   API: SCRATCH (LUCK + ACHIEVEMENTS)
 ===================================================== */
 app.post("/api/scratch", async (req, res) => {
   try {
@@ -187,95 +172,64 @@ app.post("/api/scratch", async (req, res) => {
       return res.json({ error: "NO_ENERGY" });
     }
 
-    // ⚡ rage energy 1
-    user.energy -= 1;
-
-    /* ================= LUCK INIT ================= */
-    if (typeof user.luck !== "number") {
-      user.luck = 0;
-    }
+    /* ===== SAFE INIT ===== */
+    if (typeof user.luck !== "number") user.luck = 0;
+    if (!Array.isArray(user.achievements)) user.achievements = [];
 
     const MAX_LUCK = 100;
     let reward = { points: 0, energy: 0 };
     let unlocked = [];
 
-    /* ================= GUARANTEED WIN ================= */
+    user.energy -= 1;
+
     const guaranteedWin = user.luck >= MAX_LUCK;
 
     if (guaranteedWin) {
-      reward.points = 20;          // 🎉 BIG WIN
+      reward.points = 20;
       user.points += 20;
       user.luck = 0;
-
     } else {
       const roll = Math.random() * 100;
 
       if (roll < 40) {
-        reward.points = 5;         // 40%
+        reward.points = 5;
         user.points += 5;
         user.luck = 0;
-
       } else if (roll < 65) {
-        reward.points = 10;        // 25%
+        reward.points = 10;
         user.points += 10;
         user.luck = 0;
-
       } else if (roll < 80) {
-        reward.energy = 2;         // 15%
+        reward.energy = 2;
         user.energy += 2;
         user.luck = 0;
-
       } else {
-        // ❌ NO REWARD → LUCK INCREASE
         user.luck += 25;
       }
     }
 
-    // ================= ACHIEVEMENTS =================
+    /* ===== ACHIEVEMENTS ===== */
+    if (unlockAchievement(user, "FIRST_SCRATCH")) {
+      user.energy += 3;
+      unlocked.push({ key: "FIRST_SCRATCH", reward: "+3 Energy" });
+    }
 
-// 🏆 FIRST SCRATCH
-if (unlockAchievement(user, "FIRST_SCRATCH")) {
-  user.energy += 3;
-  unlocked.push({
-    key: "FIRST_SCRATCH",
-    title: "First Scratch!",
-    reward: "+3 Energy"
-  });
-}
+    if (user.luck >= MAX_LUCK) {
+      if (unlockAchievement(user, "LUCK_MASTER")) {
+        user.points += 20;
+        unlocked.push({ key: "LUCK_MASTER", reward: "+20 Points" });
+      }
+    }
 
-// 🍀 LUCK MASTER
-if (user.luck >= 100) {
-  if (unlockAchievement(user, "LUCK_MASTER")) {
-    user.points += 20;
-    unlocked.push({
-      key: "LUCK_MASTER",
-      title: "Luck Master 🍀",
-      reward: "+20 Points"
-    });
-  }
-}
+    if (reward.points >= 20) {
+      if (unlockAchievement(user, "BIG_WIN")) {
+        user.energy += 5;
+        unlocked.push({ key: "BIG_WIN", reward: "+5 Energy" });
+      }
+    }
 
-// 🎉 BIG WIN
-if (reward.points >= 20) {
-  if (unlockAchievement(user, "BIG_WIN")) {
-    user.energy += 5;
-    unlocked.push({
-      key: "BIG_WIN",
-      title: "Big Winner 🎉",
-      reward: "+5 Energy"
-    });
-  }
-}
-
-// limit luck
-if (user.luck > 100) user.luck = 100;
-
-    // 🧱 clamp luck
-    if (user.luck > MAX_LUCK) user.luck = MAX_LUCK;
-    if (user.luck < 0) user.luck = 0;
-
-    // 🔼 level daga points
-    user.level = Math.min(1000, Math.floor(user.points / 100) + 1);
+    user.luck = Math.max(0, Math.min(MAX_LUCK, user.luck));
+    user.level = calcLevel(user.points);
 
     await user.save();
 
@@ -285,7 +239,7 @@ if (user.luck > 100) user.luck = 100;
       balance: user.points,
       energy: user.energy,
       level: user.level,
-      luck: user.luck,        
+      luck: user.luck,
       achievementsUnlocked: unlocked
     });
 
@@ -295,10 +249,11 @@ if (user.luck > 100) user.luck = 100;
   }
 });
 
+/* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
     user.achievements.push(key);
-    return true; // newly unlocked
+    return true;
   }
   return false;
 }
