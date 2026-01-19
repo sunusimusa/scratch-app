@@ -121,3 +121,14 @@ button:disabled {
   color: var(--gold);
   text-decoration: none;
 }
+
+.cooldown {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#cooldownText {
+  font-size: 13px;
+  color: #ffd700;
+  margin-top: 6px;
+}
