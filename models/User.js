@@ -33,6 +33,16 @@ const UserSchema = new mongoose.Schema(
       default: 0
     },
 
+    luck: {
+  type: Number,
+  default: 0
+},
+
+achievements: {
+  type: [String],
+  default: []
+}
+
     /* ===== DAILY / ADS ===== */
     dailyEnergyDate: {
       type: String,
