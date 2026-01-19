@@ -81,6 +81,12 @@ function updateUI() {
   }
 }
 
+const luckFill = document.getElementById("luckFill");
+  const luckText = document.getElementById("luckText");
+
+  if (luckFill) luckFill.style.width = LUCK + "%";
+  if (luckText) luckText.innerText = `${LUCK}%`;
+
 /* ================= STATUS ================= */
 function showStatus(text) {
   const el = document.getElementById("statusMsg");
