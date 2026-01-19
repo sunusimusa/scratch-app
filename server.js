@@ -46,6 +46,11 @@ function calcLevel(points) {
   return Math.min(1000, Math.floor(points / 100) + 1);
 }
 
+function canClaimBonus(user) {
+  if (!user.lastBonusTime) return true;
+  return Date.now() - user.lastBonusTime >= 30 * 60 * 1000;
+}
+
 /* =====================================================
    API: USER INIT
 ===================================================== */
