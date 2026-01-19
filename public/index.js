@@ -1,14 +1,15 @@
 /* =====================================================
    INDEX.JS – SCRATCH GAME CORE (CLEAN / NO SOUNDS)
+   MATCHES SERVER LOGIC 100%
    ANDROID + RENDER + PLAY STORE SAFE
 ===================================================== */
 
 let USER = null;
 let INIT_TRIES = 0;
 const MAX_INIT_TRIES = 5;
-let LUCK = 0;          // 0 – 100
-const MAX_LUCK = 100;
+
 let SCRATCHING = false;
+
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
   initUser();
@@ -38,9 +39,10 @@ async function initUser() {
     if (!data || !data.success) throw 1;
 
     USER = {
-      balance: Number(data.points ?? data.balance) || 0,
+      balance: Number(data.points) || 0,
       energy:  Number(data.energy) || 0,
-      level:   Number(data.level)  || 1
+      level:   Number(data.level)  || 1,
+      luck:    Number(data.luck)   || 0
     };
 
     updateUI();
@@ -66,6 +68,9 @@ function updateUI() {
   const levelText  = document.getElementById("levelText");
   const pointsText = document.getElementById("pointsText");
 
+  const luckFill   = document.getElementById("luckFill");
+  const luckText   = document.getElementById("luckText");
+
   if (energyText) energyText.innerText = `Energy: ${USER.energy}`;
   if (pointsText) pointsText.innerText = `Points: ${USER.balance}`;
   if (levelText)  levelText.innerText  = `Level: ${USER.level}`;
@@ -74,18 +79,15 @@ function updateUI() {
     energyFill.style.width = Math.min(USER.energy * 10, 100) + "%";
   }
 
+  if (luckFill) luckFill.style.width = `${USER.luck}%`;
+  if (luckText) luckText.innerText = `${USER.luck}%`;
+
   if (scratchBtn) {
     scratchBtn.disabled = USER.energy <= 0 || SCRATCHING;
     scratchBtn.innerText =
       USER.energy > 0 ? "🎟️ SCRATCH" : "⚡ Get Energy";
   }
 }
-
-const luckFill = document.getElementById("luckFill");
-  const luckText = document.getElementById("luckText");
-
-  if (luckFill) luckFill.style.width = LUCK + "%";
-  if (luckText) luckText.innerText = `${LUCK}%`;
 
 /* ================= STATUS ================= */
 function showStatus(text) {
@@ -173,36 +175,28 @@ async function finishAd() {
 
 /* ================= START SCRATCH ================= */
 function startScratch() {
-  // ❌ idan yana scratching
   if (SCRATCHING) return;
 
-  // ❌ idan babu user
   if (!USER) {
     showStatus("⏳ Loading...");
     return;
   }
 
-  // ❌ idan babu energy
   if (USER.energy <= 0) {
     showStatus("⚡ No energy left");
     updateUI();
     return;
   }
 
-  // 🔒 lock scratch
   SCRATCHING = true;
-
   showStatus("🎟️ Scratch now!");
-
-  // rage energy nan take (UI ONLY)
-  USER.energy -= 1;
-  updateUI();
 
   if (window.initScratchCard) {
     window.initScratchCard();
   }
 }
 
+/* ================= ACHIEVEMENT POPUP ================= */
 function showAchievement(ach) {
   const box = document.getElementById("achievementPopup");
   const title = document.getElementById("achTitle");
@@ -210,8 +204,8 @@ function showAchievement(ach) {
 
   if (!box) return;
 
-  title.innerText = `🏆 ${ach.title}`;
-  reward.innerText = `Reward: ${ach.reward}`;
+  title.innerText = `🏆 ${ach.key}`;
+  reward.innerText = ach.reward;
 
   box.classList.remove("hidden");
 
@@ -232,31 +226,25 @@ async function claimScratchReward() {
 
     const data = await res.json();
 
-    // ❌ idan server yace babu energy
-     if (Array.isArray(data.achievementsUnlocked)) {
-     data.achievementsUnlocked.forEach(showAchievement);
-     }
-     
     if (data.error === "NO_ENERGY") {
       showStatus("⚡ Energy finished");
-      SCRATCHING = false;
-      updateUI();
       return;
     }
 
     if (data.error) {
       showStatus("❌ " + data.error);
-      SCRATCHING = false;
       return;
     }
 
-    // ✅ sync daga server
+    // ✅ SYNC FROM SERVER
     USER.balance = data.balance;
     USER.energy  = data.energy;
     USER.level   = data.level;
+    USER.luck    = data.luck;
 
     updateUI();
 
+    // 🎁 reward text
     const rewardBox = document.getElementById("scratchReward");
     if (rewardBox) {
       if (data.reward?.points > 0) {
@@ -268,15 +256,20 @@ async function claimScratchReward() {
       }
     }
 
+    // 🏆 achievements
+    if (Array.isArray(data.achievementsUnlocked)) {
+      data.achievementsUnlocked.forEach(showAchievement);
+    }
+
     showStatus("🎟️ Scratch complete!");
 
   } catch {
     showStatus("❌ Network error");
   } finally {
-    // 🔓 UNLOCK SCRATCH
     SCRATCHING = false;
     updateUI();
   }
 }
 
+/* expose to script.js */
 window.claimScratchReward = claimScratchReward;
