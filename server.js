@@ -197,6 +197,7 @@ app.post("/api/scratch", async (req, res) => {
 
     const MAX_LUCK = 100;
     let reward = { points: 0, energy: 0 };
+    let unlocked = [];
 
     /* ================= GUARANTEED WIN ================= */
     const guaranteedWin = user.luck >= MAX_LUCK;
@@ -230,6 +231,45 @@ app.post("/api/scratch", async (req, res) => {
       }
     }
 
+    // ================= ACHIEVEMENTS =================
+
+// 🏆 FIRST SCRATCH
+if (unlockAchievement(user, "FIRST_SCRATCH")) {
+  user.energy += 3;
+  unlocked.push({
+    key: "FIRST_SCRATCH",
+    title: "First Scratch!",
+    reward: "+3 Energy"
+  });
+}
+
+// 🍀 LUCK MASTER
+if (user.luck >= 100) {
+  if (unlockAchievement(user, "LUCK_MASTER")) {
+    user.points += 20;
+    unlocked.push({
+      key: "LUCK_MASTER",
+      title: "Luck Master 🍀",
+      reward: "+20 Points"
+    });
+  }
+}
+
+// 🎉 BIG WIN
+if (reward.points >= 20) {
+  if (unlockAchievement(user, "BIG_WIN")) {
+    user.energy += 5;
+    unlocked.push({
+      key: "BIG_WIN",
+      title: "Big Winner 🎉",
+      reward: "+5 Energy"
+    });
+  }
+}
+
+// limit luck
+if (user.luck > 100) user.luck = 100;
+
     // 🧱 clamp luck
     if (user.luck > MAX_LUCK) user.luck = MAX_LUCK;
     if (user.luck < 0) user.luck = 0;
@@ -238,7 +278,6 @@ app.post("/api/scratch", async (req, res) => {
     user.level = Math.min(1000, Math.floor(user.points / 100) + 1);
 
     await user.save();
-    let unlocked = [];
 
     res.json({
       success: true,
