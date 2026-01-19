@@ -36,9 +36,9 @@ async function initUser() {
     if (!data || !data.success) throw 1;
 
     USER = {
-      balance: Number(data.points || data.balance) || 0,
-      energy: Number(data.energy) || 0,
-      level:  Number(data.level) || 1
+      balance: Number(data.points ?? data.balance) || 0,
+      energy:  Number(data.energy) || 0,
+      level:   Number(data.level)  || 1
     };
 
     updateUI();
@@ -192,9 +192,9 @@ async function claimScratchReward() {
       return;
     }
 
-    USER.balance = data.balance;
-    USER.energy  = data.energy;
-    USER.level   = data.level;
+    USER.balance = Number(data.balance) || USER.balance;
+    USER.energy  = Number(data.energy)  || USER.energy;
+    USER.level   = Number(data.level)   || USER.level;
 
     updateUI();
 
