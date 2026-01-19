@@ -174,6 +174,7 @@ async function claimScratchReward() {
     });
 
     const data = await res.json();
+
     if (data.error) {
       showStatus("❌ " + data.error);
       return null;
@@ -181,27 +182,39 @@ async function claimScratchReward() {
 
     const oldBalance = USER.balance;
 
+    // 🔄 UPDATE USER STATE (SAFE)
     USER.balance = Number(data.balance) || USER.balance;
     USER.energy  = Number(data.energy)  || USER.energy;
     USER.level   = getLevel(USER.balance);
 
     updateUI();
 
-    // 🎁 SHOW RESULT MESSAGE
-    if (data.reward?.points > 0) {
-      showStatus(`🎉 +${data.reward.points} Points`);
-      if (window.spawnCoins) spawnCoins(12);
-    } else if (data.reward?.energy > 0) {
-      showStatus(`⚡ +${data.reward.energy} Energy`);
-    } else {
-      showStatus("🙂 Try again");
+    /* ================= RESULT UI ================= */
+    const resultBox  = document.getElementById("resultBox");
+    const resultText = document.getElementById("resultText");
+
+    if (resultBox && resultText && data.reward) {
+      if (data.reward.points > 0) {
+        resultText.innerText = `🎉 +${data.reward.points} Points`;
+        if (window.spawnCoins) spawnCoins(12);
+
+      } else if (data.reward.energy > 0) {
+        resultText.innerText = `⚡ +${data.reward.energy} Energy`;
+
+      } else {
+        resultText.innerText = "🙂 No reward, try again!";
+      }
+
+      resultBox.classList.remove("hidden");
     }
 
+    // 📈 LEVEL UP CHECK
     checkLevelUp(oldBalance, USER.balance);
 
     return data.reward;
 
-  } catch {
+  } catch (err) {
+    console.error("SCRATCH ERROR:", err);
     showStatus("❌ Network error");
     return null;
   }
