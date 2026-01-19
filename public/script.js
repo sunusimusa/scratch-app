@@ -106,3 +106,36 @@ canvas.addEventListener("touchmove", e => {
   draw(t.clientX - r.left, t.clientY - r.top);
   check();
 }, { passive: false });
+
+const bonusPopup = document.getElementById("bonusPopup");
+const bonusReward = document.getElementById("bonusReward");
+const bonusBtn = document.getElementById("bonusBtn");
+
+function showBonusPopup(reward) {
+  bonusReward.innerText = `⚡ +${reward} Energy`;
+  bonusPopup.classList.remove("hidden");
+}
+
+if (bonusBtn) {
+  bonusBtn.onclick = async () => {
+    try {
+      const res = await fetch("/api/bonus", {
+        method: "POST",
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        bonusPopup.classList.add("hidden");
+        return;
+      }
+
+      USER.energy = data.energy;
+      updateUI();
+      bonusPopup.classList.add("hidden");
+
+    } catch {
+      bonusPopup.classList.add("hidden");
+    }
+  };
+}
