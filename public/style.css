@@ -153,3 +153,19 @@ button:disabled {
   color: var(--gold);
   text-decoration: none;
   }
+
+.luck-bar {
+  width: 260px;
+  height: 8px;
+  background: #222;
+  border-radius: 999px;
+  margin: 8px auto;
+  overflow: hidden;
+}
+
+#luckFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4caf50, #ffd700);
+  transition: width 0.3s ease;
+}
