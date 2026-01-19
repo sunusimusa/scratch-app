@@ -1,23 +1,23 @@
-// server.js
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import crypto from "crypto";
-import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
 import User from "./models/User.js";
 
 dotenv.config();
 
 const app = express();
 
-/* ===== PATH FIX ===== */
+/* ================= PATH FIX ================= */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ===== MIDDLEWARE ===== */
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
 app.use(cookieParser());
 
@@ -28,30 +28,26 @@ app.use(
   })
 );
 
-/* ===== STATIC FRONTEND ===== */
+/* ================= STATIC ================= */
 app.use(express.static(path.join(__dirname, "public")));
 
-/* ===== ROOT ===== */
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-/* ===== DATABASE ===== */
+/* ================= DB ================= */
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => {
-    console.error("❌ MongoDB error:", err.message);
-    process.exit(1);
-  });
+  .catch(err => console.error("❌ MongoDB error:", err));
 
-/* ===== HELPERS ===== */
+/* ================= HELPERS ================= */
 function todayString() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function calcLevel(points) {
+  return Math.min(1000, Math.floor(points / 100) + 1);
+}
+
 /* =====================================================
-   API: USER INIT (AUTO CREATE)
+   API: USER INIT (SOURCE OF TRUTH)
 ===================================================== */
 app.post("/api/user", async (req, res) => {
   try {
@@ -67,7 +63,10 @@ app.post("/api/user", async (req, res) => {
 
       user = await User.create({
         userId: "USER_" + Date.now(),
-        sessionId: sid
+        sessionId: sid,
+        energy: 0,
+        points: 0,
+        level: 1
       });
 
       res.cookie("sid", sid, {
@@ -81,10 +80,12 @@ app.post("/api/user", async (req, res) => {
     res.json({
       success: true,
       userId: user.userId,
-      level: user.level,
+      energy: user.energy,
       points: user.points,
-      energy: user.energy
+      level: user.level,
+      dailyClaimed: user.dailyEnergyDate === todayString()
     });
+
   } catch (err) {
     console.error("USER INIT ERROR:", err);
     res.status(500).json({ error: "SERVER_ERROR" });
@@ -105,13 +106,14 @@ app.post("/api/daily-energy", async (req, res) => {
     const today = todayString();
 
     if (user.dailyEnergyDate === today) {
-      return res.json({ error: "ALREADY_CLAIMED" });
+      return res.json({ error: "DAILY_ALREADY_CLAIMED" });
     }
 
     const DAILY_ENERGY = 5;
 
     user.energy += DAILY_ENERGY;
     user.dailyEnergyDate = today;
+
     await user.save();
 
     res.json({
@@ -119,6 +121,7 @@ app.post("/api/daily-energy", async (req, res) => {
       added: DAILY_ENERGY,
       energy: user.energy
     });
+
   } catch (err) {
     console.error("DAILY ENERGY ERROR:", err);
     res.status(500).json({ error: "SERVER_ERROR" });
@@ -126,7 +129,7 @@ app.post("/api/daily-energy", async (req, res) => {
 });
 
 /* =====================================================
-   API: WATCH AD → ENERGY ONLY
+   API: WATCH AD → ENERGY
 ===================================================== */
 app.post("/api/ads/watch", async (req, res) => {
   try {
@@ -148,7 +151,7 @@ app.post("/api/ads/watch", async (req, res) => {
       return res.json({ error: "ADS_LIMIT_REACHED" });
     }
 
-    const ENERGY_REWARD = 10;
+    const ENERGY_REWARD = 2;
 
     user.energy += ENERGY_REWARD;
     user.adsWatchedToday += 1;
@@ -161,59 +164,64 @@ app.post("/api/ads/watch", async (req, res) => {
       energy: user.energy,
       adsWatchedToday: user.adsWatchedToday
     });
+
   } catch (err) {
     console.error("ADS ERROR:", err);
     res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
 
+/* =====================================================
+   API: SCRATCH (ENERGY → POINTS)
+===================================================== */
 app.post("/api/scratch", async (req, res) => {
   try {
     const sid = req.cookies.sid;
-    if (!sid) {
-      return res.json({ error: "NO_SESSION" });
-    }
+    if (!sid) return res.json({ error: "NO_SESSION" });
 
     const user = await User.findOne({ sessionId: sid });
-    if (!user) {
-      return res.json({ error: "USER_NOT_FOUND" });
-    }
+    if (!user) return res.json({ error: "NO_USER" });
 
-    // ⛔ energy check (server side)
     if (user.energy <= 0) {
       return res.json({ error: "NO_ENERGY" });
     }
 
-    // 🔋 rage energy 1 (SERVER ONLY)
+    // 🔥 amfani da energy 1
     user.energy -= 1;
 
-    // 🎁 reward (kanana – kamar yadda kace)
-    const rewards = [0, 5, 10, 20];
+    // 🎁 rewards (POINTS BA YAWA)
+    const rewards = [1, 2, 5, 10];
     const reward = rewards[Math.floor(Math.random() * rewards.length)];
 
-    user.balance += reward;
+    const oldPoints = user.points;
 
-    // ⬆️ level (1 → 1000)
-    user.level = Math.min(1000, Math.floor(user.balance / 100) + 1);
+    user.points += reward;
+    user.level = calcLevel(user.points);
 
     await user.save();
 
-    return res.json({
+    res.json({
       success: true,
       reward,
+      points: user.points,
       energy: user.energy,
-      balance: user.balance,
-      level: user.level
+      level: user.level,
+      levelUp: user.level > calcLevel(oldPoints)
     });
 
   } catch (err) {
     console.error("SCRATCH ERROR:", err);
-    return res.status(500).json({ error: "SERVER_ERROR" });
+    res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
 
-/* ===== START ===== */
+/* ================= ROOT ================= */
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+/* ================= START ================= */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log("🚀 Server running on port", PORT)
-);
+app.listen(PORT, () => {
+  console.log("🚀 Scratch Game server running on port", PORT);
+});
