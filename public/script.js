@@ -1,27 +1,17 @@
 /* =====================================================
-   SCRATCH CARD – REAL RUB / SWIPE (FINAL STABLE)
+   SCRATCH CARD – REAL RUB / SWIPE (NO SOUNDS)
    ANDROID + WEBVIEW + PLAY STORE SAFE
-   ❌ NO DUPLICATES
-   ❌ NO BUGS
-   ✅ AUTO CLOSE
-   ✅ REAL SCRATCH
 ===================================================== */
 
-/* ================= ELEMENTS ================= */
 const canvas  = document.getElementById("scratchCanvas");
 const section = document.getElementById("scratchSection");
 
-if (!canvas || !section) {
-  console.warn("⚠️ Scratch elements not found");
-}
-
-/* ================= STATE ================= */
 let ctx, W, H;
 let scratching = false;
-let scratched  = false;
-let ready      = false;
+let scratched = false;
+let ready = false;
 
-/* ================= INIT SCRATCH ================= */
+/* ================= INIT ================= */
 function initScratchCard() {
   if (!canvas) return;
 
@@ -29,87 +19,72 @@ function initScratchCard() {
   W = canvas.width;
   H = canvas.height;
 
-  // reset state
   scratching = false;
-  scratched  = false;
-  ready      = true;
+  scratched = false;
+  ready = true;
 
-  // reset canvas
   ctx.globalCompositeOperation = "source-over";
   ctx.clearRect(0, 0, W, H);
 
-  // cover layer
   ctx.fillStyle = "#9e9e9e";
   ctx.fillRect(0, 0, W, H);
   ctx.globalCompositeOperation = "destination-out";
 
-  // show UI
   section.classList.remove("hidden");
   canvas.style.display = "block";
-
-  if (window.playSound) playSound("clickSound");
 }
 
-/* expose globally */
 window.initScratchCard = initScratchCard;
 
 /* ================= DRAW ================= */
-function drawScratch(x, y) {
+function draw(x, y) {
   if (!ready || scratched) return;
-
   ctx.beginPath();
   ctx.arc(x, y, 18, 0, Math.PI * 2);
   ctx.fill();
 }
 
-/* ================= PERCENT ================= */
-function getPercent() {
-  const img = ctx.getImageData(0, 0, W, H).data;
-  let cleared = 0;
-
-  for (let i = 3; i < img.length; i += 4) {
-    if (img[i] === 0) cleared++;
+/* ================= CHECK ================= */
+function percent() {
+  const d = ctx.getImageData(0, 0, W, H).data;
+  let c = 0;
+  for (let i = 3; i < d.length; i += 4) {
+    if (d[i] === 0) c++;
   }
-
-  return (cleared / (W * H)) * 100;
+  return (c / (W * H)) * 100;
 }
 
-/* ================= CHECK ================= */
-function checkScratch() {
+function check() {
   if (!ready || scratched) return;
-
-  if (getPercent() >= 60) {
+  if (percent() >= 60) {
     scratched = true;
     ready = false;
-    finishScratch();
+    finish();
   }
 }
 
 /* ================= FINISH ================= */
-async function finishScratch() {
+async function finish() {
   canvas.style.display = "none";
   section.classList.add("hidden");
 
-  // ⚠️ SOUND anan zai dogara da reward
-  await claimScratchReward();
+  if (window.claimScratchReward) {
+    await window.claimScratchReward();
+  }
 }
 
 /* ================= MOUSE ================= */
-canvas.addEventListener("mousedown", () => {
-  if (!ready) return;
-  scratching = true;
-});
-
-canvas.addEventListener("mouseup", () => scratching = false);
-canvas.addEventListener("mouseleave", () => scratching = false);
+canvas.addEventListener("mousedown", () => ready && (scratching = true));
+canvas.addEventListener("mouseup",   () => scratching = false);
+canvas.addEventListener("mouseleave",() => scratching = false);
 
 canvas.addEventListener("mousemove", e => {
-  if (!scratching || scratched) return;
-  drawScratch(e.offsetX, e.offsetY);
-  checkScratch();
+  if (!scratching) return;
+  draw(e.offsetX, e.offsetY);
+  check();
 });
 
-/* ================= TOUCH (ANDROID SAFE) ================= */
+/* ================= TOUCH ================= */
 canvas.addEventListener("touchstart", e => {
   if (!ready) return;
   e.preventDefault();
@@ -121,123 +96,12 @@ canvas.addEventListener("touchend", e => {
   scratching = false;
 }, { passive: false });
 
-canvas.addEventListener("touchcancel", () => {
-  scratching = false;
-}, { passive: false });
-
 canvas.addEventListener("touchmove", e => {
-  if (!scratching || scratched) return;
+  if (!scratching) return;
   e.preventDefault();
 
-  const rect = canvas.getBoundingClientRect();
+  const r = canvas.getBoundingClientRect();
   const t = e.touches[0];
-
-  drawScratch(
-    t.clientX - rect.left,
-    t.clientY - rect.top
-  );
-
-  checkScratch();
+  draw(t.clientX - r.left, t.clientY - r.top);
+  check();
 }, { passive: false });
-
-/* =====================================================
-   VISUAL FEEDBACK
-===================================================== */
-
-/* ================= COINS ================= */
-function spawnCoins(count = 12) {
-  const target = document.getElementById("pointsText"); // ✅ GYARA
-  if (!target) return;
-
-  const rect = target.getBoundingClientRect();
-
-  for (let i = 0; i < count; i++) {
-    const coin = document.createElement("div");
-    coin.className = "coin";
-
-    coin.style.left = window.innerWidth / 2 + "px";
-    coin.style.top  = window.innerHeight / 2 + "px";
-
-    document.body.appendChild(coin);
-
-    setTimeout(() => {
-      coin.style.left = rect.left + rect.width / 2 + "px";
-      coin.style.top  = rect.top + "px";
-      coin.style.opacity = "0";
-      coin.style.transform = "scale(0.5)";
-    }, 60);
-
-    setTimeout(() => coin.remove(), 900);
-  }
-}
-
-/* ================= CONFETTI ================= */
-function launchConfetti(count = 25) {
-  for (let i = 0; i < count; i++) {
-    const c = document.createElement("div");
-    c.className = "confetti";
-
-    c.style.left = Math.random() * window.innerWidth + "px";
-    c.style.backgroundColor =
-      ["#ffd700", "#ff5722", "#4caf50", "#03a9f4"][
-        Math.floor(Math.random() * 4)
-      ];
-
-    document.body.appendChild(c);
-
-    c.animate(
-      [
-        { transform: "translateY(0)", opacity: 1 },
-        {
-          transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`,
-          opacity: 0
-        }
-      ],
-      { duration: 1200 + Math.random() * 800 }
-    );
-
-    setTimeout(() => c.remove(), 2000);
-  }
-}
-
-/* =====================================================
-   SOUND SYSTEM – ANDROID / WEBVIEW FINAL FIX
-===================================================== */
-
-let SOUND_UNLOCKED = false;
-
-/* 🔊 PLAY SOUND */
-function playSound(id) {
-  const audio = document.getElementById(id);
-  if (!audio || !SOUND_UNLOCKED) return;
-
-  try {
-    audio.pause();
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  } catch {}
-}
-
-/* 🔓 UNLOCK AUDIO (FIRST USER ACTION) */
-function unlockSounds() {
-  if (SOUND_UNLOCKED) return;
-
-  ["clickSound", "winSound", "loseSound", "errorSound"].forEach(id => {
-    const a = document.getElementById(id);
-    if (!a) return;
-    try {
-      a.muted = true;
-      a.play().then(() => {
-        a.pause();
-        a.currentTime = 0;
-        a.muted = false;
-      }).catch(() => {});
-    } catch {}
-  });
-
-  SOUND_UNLOCKED = true;
-  console.log("🔊 Sounds unlocked");
-}
-
-document.addEventListener("click", unlockSounds, { once: true });
-document.addEventListener("touchstart", unlockSounds, { once: true });
