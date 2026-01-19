@@ -51,6 +51,10 @@ function canClaimBonus(user) {
   return Date.now() - user.lastBonusTime >= 30 * 60 * 1000;
 }
 
+function generateReferralCode() {
+  return "REF" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
 /* =====================================================
    API: USER INIT
 ===================================================== */
@@ -73,6 +77,7 @@ app.post("/api/user", async (req, res) => {
         points: 0,
         level: 1,
         luck: 0,
+        referralCode: generateReferralCode(),
         achievements: []
       });
 
@@ -241,11 +246,14 @@ app.post("/api/scratch", async (req, res) => {
     res.json({
       success: true,
       reward,
+      userId: user.userId,
       balance: user.points,
       energy: user.energy,
       level: user.level,
       luck: user.luck,
-      achievementsUnlocked: unlocked
+      achievementsUnlocked: unlocked,
+      referralCode: user.referralCode,
+      referralsCount: user.referralsCount
     });
 
   } catch (err) {
@@ -291,6 +299,59 @@ app.post("/api/bonus/check", async (req, res) => {
 
   } catch (err) {
     console.error("BONUS ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
+app.post("/api/referral/claim", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    const { code } = req.body;
+
+    if (!sid || !code) {
+      return res.json({ error: "INVALID_REQUEST" });
+    }
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.json({ error: "NO_USER" });
+
+    // ❌ already used referral
+    if (user.referredBy) {
+      return res.json({ error: "ALREADY_REFERRED" });
+    }
+
+    // ❌ self referral
+    if (user.referralCode === code) {
+      return res.json({ error: "SELF_REFERRAL" });
+    }
+
+    const inviter = await User.findOne({ referralCode: code });
+    if (!inviter) {
+      return res.json({ error: "INVALID_CODE" });
+    }
+
+    // ✅ APPLY REWARDS
+    inviter.energy += 25;
+    inviter.points += 125;
+    inviter.referralsCount += 1;
+
+    user.referredBy = inviter.referralCode;
+    user.energy += 10; // bonus ga sabon user (zaka iya cirewa)
+
+    await inviter.save();
+    await user.save();
+
+    res.json({
+      success: true,
+      inviterReward: {
+        energy: 25,
+        points: 125
+      },
+      userEnergy: user.energy
+    });
+
+  } catch (err) {
+    console.error("REFERRAL ERROR:", err);
     res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
