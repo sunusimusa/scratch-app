@@ -1,68 +1,25 @@
-// models/User.js
 import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true
-    },
+const UserSchema = new mongoose.Schema({
+  userId: String,
+  sessionId: String,
 
-    sessionId: {
-      type: String,
-      unique: true,
-      sparse: true,
-      index: true
-    },
+  energy: { type: Number, default: 0 },
+  points: { type: Number, default: 0 },
+  level:  { type: Number, default: 1 },
 
-    /* ===== GAME ===== */
-    level: {
-      type: Number,
-      default: 1
-    },
+  // 🆕 BONUS SYSTEM
+  lastBonusAt: { type: Number, default: 0 },
 
-    points: {
-      type: Number,
-      default: 0
-    },
+  // existing
+  dailyEnergyDate: { type: String, default: "" },
+  adsWatchedToday: { type: Number, default: 0 },
+  lastAdsDate: { type: String, default: "" },
 
-    energy: {
-      type: Number,
-      default: 0
-    },
+  // 🆕 LUCK + ACHIEVEMENTS
+  luck: { type: Number, default: 0 },
+  achievements: { type: [String], default: [] }
 
-    luck: {
-  type: Number,
-  default: 0
-},
-
-achievements: {
-  type: [String],
-  default: []
-},
-
-    /* ===== DAILY / ADS ===== */
-    dailyEnergyDate: {
-      type: String,
-      default: ""
-    },
-
-    adsWatchedToday: {
-      type: Number,
-      default: 0
-    },
-
-    lastAdsDate: {
-      type: String,
-      default: ""
-    }
-  },
-  {
-    timestamps: true,
-    versionKey: false
-  }
-);
+}, { timestamps: true });
 
 export default mongoose.model("User", UserSchema);
