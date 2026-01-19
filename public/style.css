@@ -143,3 +143,35 @@ button:disabled {
   transform: scale(1.15);
   color: #ff9800;
 }
+
+.scratch-card {
+  position: relative;
+  width: 260px;
+  height: 160px;
+  margin: 20px auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #1c1c28;
+}
+
+#scratchCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.scratch-reward {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffd700;
+  text-align: center;
+  padding: 10px;
+}
