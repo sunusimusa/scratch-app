@@ -238,6 +238,7 @@ app.post("/api/scratch", async (req, res) => {
     user.level = Math.min(1000, Math.floor(user.points / 100) + 1);
 
     await user.save();
+    let unlocked = [];
 
     res.json({
       success: true,
@@ -253,6 +254,14 @@ app.post("/api/scratch", async (req, res) => {
     res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
+
+function unlockAchievement(user, key) {
+  if (!user.achievements.includes(key)) {
+    user.achievements.push(key);
+    return true; // newly unlocked
+  }
+  return false;
+}
 
 /* ================= ROOT ================= */
 app.get("/", (req, res) => {
