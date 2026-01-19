@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema(
 achievements: {
   type: [String],
   default: []
-}
+},
 
     /* ===== DAILY / ADS ===== */
     dailyEnergyDate: {
