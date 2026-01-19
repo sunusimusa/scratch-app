@@ -13,10 +13,12 @@
 </head>
 <body>
 
-  <!-- ===== SOUNDS ===== -->
+  <!-- =====================================================
+       SOUNDS (MATCH FILES EXACTLY)
+  ====================================================== -->
   <audio id="clickSound" src="/sounds/click.mp3" preload="auto"></audio>
-  <audio id="winSound" src="/sounds/win.mp3" preload="auto"></audio>
-  <audio id="levelSound" src="/sounds/level.mp3" preload="auto"></audio>
+  <audio id="winSound"   src="/sounds/win.mp3"   preload="auto"></audio>
+  <audio id="loseSound"  src="/sounds/lose.mp3"  preload="auto"></audio>
   <audio id="errorSound" src="/sounds/error.mp3" preload="auto"></audio>
 
   <!-- ===== APP TITLE ===== -->
@@ -31,22 +33,22 @@
   </div>
   <p id="energyText">Energy: 0</p>
 
-  <!-- ===== LEVEL ===== -->
+  <!-- ===== LEVEL & POINTS ===== -->
   <p id="levelText">Level: 1</p>
   <p id="pointsText">Points: 0</p>
 
-  <!-- ===== SCRATCH SECTION ===== -->
+  <!-- =====================================================
+       SCRATCH SECTION
+  ====================================================== -->
   <div id="scratchSection" class="scratch-card hidden">
 
-  <!-- 🎁 ABIN DA USER ZAI SAMU (A KARKASHIN KATI) -->
-  <div id="scratchReward" class="scratch-reward">
-    🎁 Scratch to Win
-  </div>
+    <!-- 🎁 REWARD TEXT (A ƘASA DA KATI) -->
+    <div id="scratchReward" class="scratch-reward">
+      🎁 Scratch to Win
+    </div>
 
-  <!-- 🧤 SCRATCH COVER -->
-  <canvas id="scratchCanvas" width="260" height="160"></canvas>
-
-  </div>
+    <!-- 🧤 SCRATCH COVER -->
+    <canvas id="scratchCanvas" width="260" height="160"></canvas>
 
   </div>
 
@@ -55,6 +57,7 @@
     🎟️ SCRATCH
   </button>
 
+  <!-- ===== COOLDOWN TEXT ===== -->
   <p id="cooldownText" class="hidden">⏳ Please wait...</p>
 
   <!-- ===== DAILY ENERGY ===== -->
@@ -73,9 +76,9 @@
     <a href="/terms.html">Terms</a>
   </p>
 
-  <!-- ===== SCRIPTS ===== -->
-  <script src="/index.js"></script>
+  <!-- ===== SCRIPTS (ORDER IS IMPORTANT) ===== -->
   <script src="/script.js"></script>
+  <script src="/index.js"></script>
 
 </body>
 </html>
