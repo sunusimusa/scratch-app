@@ -214,3 +214,58 @@ function launchConfetti(count = 25) {
     setTimeout(() => c.remove(), 2000);
   }
 }
+
+/* =====================================================
+   SOUND SYSTEM – ANDROID / WEBVIEW FINAL FIX
+===================================================== */
+
+let SOUND_UNLOCKED = false;
+
+/* 🔊 PLAY SOUND */
+function playSound(id) {
+  const audio = document.getElementById(id);
+  if (!audio) return;
+
+  if (!SOUND_UNLOCKED) {
+    console.log("🔇 Sound locked:", id);
+    return;
+  }
+
+  try {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play().catch(err => {
+      console.warn("Sound blocked:", id, err);
+    });
+  } catch (err) {
+    console.warn("Sound error:", err);
+  }
+}
+
+/* 🔓 UNLOCK AUDIO (MUST BE USER ACTION) */
+function unlockSounds() {
+  if (SOUND_UNLOCKED) return;
+
+  const ids = ["clickSound", "winSound", "levelSound", "errorSound"];
+
+  ids.forEach(id => {
+    const audio = document.getElementById(id);
+    if (!audio) return;
+
+    try {
+      audio.muted = true;
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+      }).catch(() => {});
+    } catch {}
+  });
+
+  SOUND_UNLOCKED = true;
+  console.log("🔊 Sounds unlocked successfully");
+}
+
+/* ⚠️ IMPORTANT: unlock on FIRST interaction */
+document.addEventListener("click", unlockSounds, { once: true });
+document.addEventListener("touchstart", unlockSounds, { once: true });
