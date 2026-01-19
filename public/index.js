@@ -183,34 +183,46 @@ async function claimScratchReward() {
 
     const rewardBox = document.getElementById("scratchReward");
 
-    USER.balance = Number(data.balance) || USER.balance;
-    USER.energy  = Number(data.energy)  || USER.energy;
-    USER.level   = Number(data.level)   || USER.level;
+    const oldPoints = Number(USER.balance) || 0;
+
+    // 🔄 UPDATE USER STATE (SAFE)
+    USER.balance = Number(data.balance ?? USER.balance);
+    USER.energy  = Number(data.energy  ?? USER.energy);
+    USER.level   = Number(data.level   ?? USER.level);
 
     updateUI();
 
     // 🎁 SHOW REWARD A CIKIN KATI
-    if (data.reward.points > 0) {
-      rewardBox.innerText = `🎉 +${data.reward.points} Points`;
-      if (window.spawnCoins) spawnCoins(10);
-      if (window.playSound) playSound("winSound");
-    } 
-    else if (data.reward.energy > 0) {
-      rewardBox.innerText = `⚡ +${data.reward.energy} Energy`;
-      if (window.playSound) playSound("winSound");
-    } 
-    else {
-      rewardBox.innerText = "🙂 Try again";
+    if (rewardBox) {
+      if (data.reward?.points > 0) {
+        rewardBox.innerText = `🎉 +${data.reward.points} Points`;
+        if (window.spawnCoins) spawnCoins(10);
+        if (window.playSound) playSound("winSound");
+
+        // 🔢 animate total points
+        if (window.animatePoints) {
+          animatePoints(oldPoints, USER.balance);
+        }
+
+      } else if (data.reward?.energy > 0) {
+        rewardBox.innerText = `⚡ +${data.reward.energy} Energy`;
+        if (window.playSound) playSound("winSound");
+
+      } else {
+        rewardBox.innerText = "🙂 No reward, try again!";
+      }
     }
 
     showStatus("🎟️ Scratch complete!");
 
-  } catch {
+    // ⏳ START COOLDOWN
+    startCooldown(3);
+
+  } catch (err) {
+    console.error(err);
     showStatus("❌ Network error");
   }
 }
-
-startCooldown(3); // ⏳ 3 seconds cooldown
 
 let SCRATCH_COOLDOWN = false;
 
@@ -220,8 +232,8 @@ function startCooldown(seconds = 3) {
   if (!btn || !text) return;
 
   SCRATCH_COOLDOWN = true;
-  btn.classList.add("cooldown");
   btn.disabled = true;
+  btn.classList.add("cooldown");
 
   let left = seconds;
   text.innerText = `⏳ Wait ${left}s`;
@@ -229,6 +241,7 @@ function startCooldown(seconds = 3) {
 
   const timer = setInterval(() => {
     left--;
+
     if (left <= 0) {
       clearInterval(timer);
       SCRATCH_COOLDOWN = false;
@@ -239,6 +252,30 @@ function startCooldown(seconds = 3) {
       text.innerText = `⏳ Wait ${left}s`;
     }
   }, 1000);
+}
+
+function animatePoints(from, to) {
+  const el = document.getElementById("pointsText");
+  if (!el) return;
+
+  const duration = 600;
+  const start = performance.now();
+
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const value = Math.floor(from + (to - from) * progress);
+    el.innerText = `Points: ${value}`;
+
+    if (progress < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      el.innerText = `Points: ${to}`;
+      el.classList.add("points-bump");
+      setTimeout(() => el.classList.remove("points-bump"), 300);
+    }
+  }
+
+  requestAnimationFrame(tick);
 }
 
 /* ================= LEVEL SYSTEM ================= */
