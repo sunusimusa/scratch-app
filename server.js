@@ -187,44 +187,52 @@ app.post("/api/scratch", async (req, res) => {
       return res.json({ error: "NO_ENERGY" });
     }
 
-    // ⚡ rage energy
-user.energy -= 1;
+    // ⚡ rage energy 1
+    user.energy -= 1;
 
-// 🎯 LUCK SYSTEM
-let guaranteedWin = user.luck >= 100;
+    /* ================= LUCK INIT ================= */
+    if (typeof user.luck !== "number") {
+      user.luck = 0;
+    }
 
-let reward = { points: 0, energy: 0 };
+    const MAX_LUCK = 100;
+    let reward = { points: 0, energy: 0 };
 
-if (guaranteedWin) {
-  reward.points = 15;
-  user.points += 15;
-  user.luck = 0;
-} else {
-  const roll = Math.random() * 100;
+    /* ================= GUARANTEED WIN ================= */
+    const guaranteedWin = user.luck >= MAX_LUCK;
 
-  if (roll < 40) {
-    reward.points = 5;
-    user.points += 5;
-    user.luck = 0;
-  } 
-  else if (roll < 65) {
-    reward.points = 10;
-    user.points += 10;
-    user.luck = 0;
-  } 
-  else if (roll < 80) {
-    reward.energy = 2;
-    user.energy += 2;
-    user.luck = 0;
-  } 
-  else {
-    // ❌ NO REWARD
-    user.luck += 25;
-  }
-}
+    if (guaranteedWin) {
+      reward.points = 20;          // 🎉 BIG WIN
+      user.points += 20;
+      user.luck = 0;
 
-if (user.luck > 100) user.luck = 100;
-    
+    } else {
+      const roll = Math.random() * 100;
+
+      if (roll < 40) {
+        reward.points = 5;         // 40%
+        user.points += 5;
+        user.luck = 0;
+
+      } else if (roll < 65) {
+        reward.points = 10;        // 25%
+        user.points += 10;
+        user.luck = 0;
+
+      } else if (roll < 80) {
+        reward.energy = 2;         // 15%
+        user.energy += 2;
+        user.luck = 0;
+
+      } else {
+        // ❌ NO REWARD → LUCK INCREASE
+        user.luck += 25;
+      }
+    }
+
+    // 🧱 clamp luck
+    if (user.luck > MAX_LUCK) user.luck = MAX_LUCK;
+    if (user.luck < 0) user.luck = 0;
 
     // 🔼 level daga points
     user.level = Math.min(1000, Math.floor(user.points / 100) + 1);
@@ -233,10 +241,11 @@ if (user.luck > 100) user.luck = 100;
 
     res.json({
       success: true,
-      reward,                 // 🔥 MUHIMMI
+      reward,
       balance: user.points,
       energy: user.energy,
-      level: user.level
+      level: user.level,
+      luck: user.luck          // 🔥 KA MAYAR DA SHI FRONTEND
     });
 
   } catch (err) {
