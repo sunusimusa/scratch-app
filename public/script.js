@@ -36,6 +36,32 @@ function initScratchCard() {
 
 window.initScratchCard = initScratchCard;
 
+/* =====================================================
+   30 MIN BONUS CHECK (CLIENT SIDE)
+===================================================== */
+
+function startBonusTimer() {
+  setInterval(async () => {
+    try {
+      const res = await fetch("/api/bonus", {
+        method: "POST",
+        credentials: "include"
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        showBonusPopup(data.reward);
+        USER.energy = data.energy;
+        updateUI();
+      }
+
+    } catch (err) {
+      console.log("Bonus check skipped");
+    }
+  }, 30 * 60 * 1000); // 30 minutes
+}
+
 /* ================= DRAW ================= */
 function draw(x, y) {
   if (!ready || scratched) return;
