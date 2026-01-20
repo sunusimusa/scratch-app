@@ -315,14 +315,16 @@ app.post("/api/referral/claim", async (req, res) => {
     }
 
     const user = await User.findOne({ sessionId: sid });
-    if (!user) return res.json({ error: "NO_USER" });
+    if (!user) {
+      return res.json({ error: "NO_USER" });
+    }
 
-    // ❌ already used referral
+    /* ❌ already referred */
     if (user.referredBy) {
       return res.json({ error: "ALREADY_REFERRED" });
     }
 
-    // ❌ self referral
+    /* ❌ self referral */
     if (user.referralCode === code) {
       return res.json({ error: "SELF_REFERRAL" });
     }
@@ -332,24 +334,39 @@ app.post("/api/referral/claim", async (req, res) => {
       return res.json({ error: "INVALID_CODE" });
     }
 
-    // ✅ APPLY REWARDS
-    inviter.energy += 25;
-    inviter.points += 125;
+    /* ===== SAFE INIT ===== */
+    if (typeof inviter.referralsCount !== "number") {
+      inviter.referralsCount = 0;
+    }
+
+    /* ===== APPLY REWARDS ===== */
+    const INVITER_ENERGY = 25;
+    const INVITER_POINTS = 125;
+    const USER_ENERGY = 10; // zaka iya canzawa
+
+    inviter.energy += INVITER_ENERGY;
+    inviter.points += INVITER_POINTS;
     inviter.referralsCount += 1;
 
     user.referredBy = inviter.referralCode;
-    user.energy += 10; // bonus ga sabon user (zaka iya cirewa)
+    user.energy += USER_ENERGY;
 
     await inviter.save();
     await user.save();
 
     res.json({
       success: true,
+
+      // 🔥 return FULL sync
+      userEnergy: user.energy,
+      userPoints: user.points,
+
       inviterReward: {
-        energy: 25,
-        points: 125
+        energy: INVITER_ENERGY,
+        points: INVITER_POINTS
       },
-      userEnergy: user.energy
+
+      referralsCount: inviter.referralsCount
     });
 
   } catch (err) {
