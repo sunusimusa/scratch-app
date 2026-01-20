@@ -321,3 +321,53 @@ button:disabled {
   background: #111;
   color: #fff;
 }
+
+.ref-box {
+  background: #111;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.ref-title {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.ref-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ref-code {
+  flex: 1;
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #ffd700;
+  text-align: center;
+}
+
+.copy-btn {
+  background: #ffd700;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ref-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #222;
+  color: #fff;
+  margin-top: 10px;
+}
