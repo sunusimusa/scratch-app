@@ -106,21 +106,19 @@
     ⚡ <b>+25 Energy</b> · ⭐ <b>+125 Points</b>
   </p>
 
-  <div class="ref-code-box">
-    <span id="referralCode">----</span>
-    <button onclick="copyReferral()">Copy</button>
-  </div>
-
   <!-- ===== YOUR REFERRAL CODE ===== -->
-<div class="ref-box">
-  <p class="ref-title">Your Referral Code</p>
+  <div class="ref-box">
+    <p class="ref-title">Your Referral Code</p>
 
-  <div class="ref-code-row">
-    <span id="referralCode" class="ref-code">----</span>
-    <button onclick="copyReferral()" class="copy-btn">Copy</button>
+    <div class="ref-code-row">
+      <span id="referralCode"
+   class="ref-code">----</span>
+      <button class="copy-btn" 
+   onclick="copyReferral()">Copy</button>
+    </div>
   </div>
-</div>
 
+  <!-- ===== ENTER REFERRAL CODE ===== -->
   <input
     type="text"
     id="refInput"
@@ -128,7 +126,8 @@
     class="ref-input"
   />
 
-  <button class="primary-btn" onclick="claimReferralCode()">
+  <button class="primary-btn" 
+  onclick="claimReferralCode()">
     🎉 Claim Referral
   </button>
 </div>
