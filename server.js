@@ -88,16 +88,18 @@ app.post("/api/user", async (req, res) => {
         path: "/"
       });
     }
-
-    res.json({
-      success: true,
-      userId: user.userId,
-      energy: user.energy,
-      points: user.points,
-      level: user.level,
-      luck: user.luck,
-      dailyClaimed: user.dailyEnergyDate === todayString()
-    });
+    
+ res.json({
+    success: true,
+    userId: user.userId,
+    energy: user.energy,
+    points: user.points,
+    level: user.level,
+    luck: user.luck,
+    referralCode: user.referralCode,   // ✅ MUHIMMI
+    referralsCount: user.referralsCount || 0,
+    dailyClaimed: user.dailyEnergyDate === todayString()
+  });  
 
   } catch (err) {
     console.error("USER INIT ERROR:", err);
