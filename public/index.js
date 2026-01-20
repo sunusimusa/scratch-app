@@ -35,11 +35,10 @@ async function initUser() {
       credentials: "include"
     });
 
-    const data = await res.json(); // ✅ ka fara karɓar data
-
+    const data = await res.json();
     if (!data || !data.success) throw 1;
 
-    // ================= USER STATE =================
+    /* ================= USER STATE ================= */
     USER = {
       balance: Number(data.points) || 0,
       energy:  Number(data.energy) || 0,
@@ -47,10 +46,10 @@ async function initUser() {
       luck:    Number(data.luck)   || 0
     };
 
-    // ================= REFERRAL CODE =================
+    /* ================= REFERRAL CODE ================= */
     const refEl = document.getElementById("referralCode");
-    if (refEl && data.referralCode) {
-      refEl.innerText = data.referralCode;
+    if (refEl) {
+      refEl.innerText = data.referralCode || "----";
     }
 
     updateUI();
@@ -66,20 +65,36 @@ async function initUser() {
   }
 }
 
+/* ================= COPY REFERRAL ================= */
 function copyReferral() {
-  const code = document.getElementById("referralCode")?.innerText;
-  if (!code || code === "----") return;
+  const refEl = document.getElementById("referralCode");
+  if (!refEl) return;
+
+  const code = refEl.innerText.trim();
+  if (!code || code === "----") {
+    showStatus("❌ Referral code not ready");
+    return;
+  }
 
   navigator.clipboard.writeText(code);
   showStatus("📋 Referral code copied!");
 }
 
+/* ================= CLAIM REFERRAL ================= */
 async function claimReferralCode() {
   const input = document.getElementById("refInput");
-  const code = input?.value.trim();
+  if (!input) return;
 
+  const code = input.value.trim();
   if (!code) {
     showStatus("❌ Enter referral code");
+    return;
+  }
+
+  // ❌ hana user ya saka nasa code
+  const myCode = document.getElementById("referralCode")?.innerText;
+  if (myCode && code === myCode) {
+    showStatus("❌ You cannot use your own code");
     return;
   }
 
@@ -96,14 +111,17 @@ async function claimReferralCode() {
     const data = await res.json();
 
     if (data.error) {
-      showStatus("❌ Invalid or used code");
+      showStatus("❌ " + data.error);
       return;
     }
 
-    USER.energy = data.userEnergy;
-    updateUI();
+    // ✅ sync from server
+    if (typeof data.energy === "number") USER.energy = data.energy;
+    if (typeof data.points === "number") USER.balance = data.points;
 
+    updateUI();
     input.value = "";
+
     showStatus("🎉 Referral bonus received!");
 
   } catch {
