@@ -180,8 +180,15 @@ app.post("/api/scratch", async (req, res) => {
     const user = await User.findOne({ sessionId: sid });
     if (!user) return res.json({ error: "NO_USER" });
 
-    if (user.energy <= 0) {
-      return res.json({ error: "NO_ENERGY" });
+    /* ===== CONFIG ===== */
+    const SCRATCH_COST = 3; // 🔥 canza zuwa 5 idan kana so
+
+    if (user.energy < SCRATCH_COST) {
+      return res.json({
+        error: "NO_ENERGY",
+        needAds: true,
+        energy: user.energy
+      });
     }
 
     /* ===== SAFE INIT ===== */
@@ -192,7 +199,8 @@ app.post("/api/scratch", async (req, res) => {
     let reward = { points: 0, energy: 0 };
     let unlocked = [];
 
-    user.energy -= 1;
+    /* ===== PAY ENERGY COST ===== */
+    user.energy -= SCRATCH_COST;
 
     const guaranteedWin = user.luck >= MAX_LUCK;
 
@@ -248,7 +256,6 @@ app.post("/api/scratch", async (req, res) => {
     res.json({
       success: true,
       reward,
-      userId: user.userId,
       balance: user.points,
       energy: user.energy,
       level: user.level,
