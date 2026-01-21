@@ -509,6 +509,72 @@ app.get("/api/achievements", async (req, res) => {
   }
 });
 
+/* =====================================================
+   API: SHOP BUY
+===================================================== */
+app.post("/api/shop/buy", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    const { item } = req.body;
+
+    if (!sid || !item) {
+      return res.json({ error: "INVALID_REQUEST" });
+    }
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) {
+      return res.json({ error: "NO_USER" });
+    }
+
+    let costOk = false;
+
+    // 🪙 POINTS → ENERGY
+    if (item === "POINTS") {
+      if (user.points >= 150) {
+        user.points -= 150;
+        user.energy += 50;
+        costOk = true;
+      }
+    }
+
+    // 🥇 GOLD → ENERGY
+    if (item === "GOLD") {
+      if (user.gold >= 75) {
+        user.gold -= 75;
+        user.energy += 50;
+        costOk = true;
+      }
+    }
+
+    // 💎 DIAMOND → BIG ENERGY
+    if (item === "DIAMOND") {
+      if (user.diamond >= 100) {
+        user.diamond -= 100;
+        user.energy += 1000;
+        costOk = true;
+      }
+    }
+
+    if (!costOk) {
+      return res.json({ error: "NOT_ENOUGH_BALANCE" });
+    }
+
+    await user.save();
+
+    res.json({
+      success: true,
+      energy: user.energy,
+      points: user.points,
+      gold: user.gold,
+      diamond: user.diamond
+    });
+
+  } catch (err) {
+    console.error("SHOP BUY ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
