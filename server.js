@@ -51,10 +51,6 @@ function calcLevel(points) {
   return Math.min(1000, Math.floor(points / 100) + 1);
 }
 
-function canClaimBonus(user) {
-  if (!user.lastBonusTime) return true;
-  return Date.now() - user.lastBonusTime >= 30 * 60 * 1000;
-}
 
 function generateReferralCode() {
   return "REF" + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -338,6 +334,7 @@ app.post("/api/bonus/check", async (req, res) => {
     await user.save();
 
     res.json({
+      success: true,
       bonusAvailable: true,
       reward,
       energy: user.energy
