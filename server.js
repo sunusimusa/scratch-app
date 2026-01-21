@@ -210,7 +210,8 @@ app.post("/api/scratch", async (req, res) => {
     if (!user) return res.json({ error: "NO_USER" });
 
     /* ===== CONFIG ===== */
-    const SCRATCH_COST = 3; // 🔥 canza zuwa 5 idan kana so
+    const SCRATCH_COST = 3;
+    const MAX_LUCK = 100;
 
     if (user.energy < SCRATCH_COST) {
       return res.json({
@@ -223,85 +224,83 @@ app.post("/api/scratch", async (req, res) => {
     /* ===== SAFE INIT ===== */
     if (typeof user.luck !== "number") user.luck = 0;
     if (!Array.isArray(user.achievements)) user.achievements = [];
+    if (typeof user.gold !== "number") user.gold = 0;
+    if (typeof user.diamond !== "number") user.diamond = 0;
 
-    const MAX_LUCK = 100;
     let reward = { points: 0, energy: 0, gold: 0, diamond: 0 };
     let unlocked = [];
 
-    /* ===== PAY ENERGY COST ===== */
+    /* ===== PAY ENERGY ===== */
     user.energy -= SCRATCH_COST;
 
+    /* ===== LUCK SYSTEM ===== */
     const guaranteedWin = user.luck >= MAX_LUCK;
-
-    if (reward.points >= 20) {
-  if (unlockAchievement(user, "BIG_WIN")) {
-    user.energy += 5;
-    user.gold += 2; // 🥇
-    unlocked.push({ key: "BIG_WIN", reward: "+5 Energy, +2 Gold" });
-  }
-    }
+    const roll = Math.random() * 100;
 
     if (guaranteedWin) {
       reward.points = 20;
       user.points += 20;
       user.luck = 0;
+
+    } else if (roll < 40) {
+      reward.points = 5;
+      user.points += 5;
+      user.luck = 0;
+
+    } else if (roll < 65) {
+      reward.points = 10;
+      user.points += 10;
+      user.luck = 0;
+
+    } else if (roll < 80) {
+      reward.energy = 2;
+      user.energy += 2;
+      user.luck = 0;
+
+    } else if (roll < 83) {
+      reward.gold = 1;
+      user.gold += 1;
+      user.luck = 0;
+
+    } else if (roll < 85) {
+      reward.diamond = 1;
+      user.diamond += 1;
+      user.luck = 0;
+
     } else {
-      const roll = Math.random() * 100;
-
-      else if (roll < 82) {
-  // 🥇 GOLD (2% chance)
-  user.gold += 1;
-  reward.gold = 1;
-  user.luck = 0;
-
-} else if (roll < 84) {
-  // 💎 DIAMOND (2% chance – very rare)
-  user.diamond += 1;
-  reward.diamond = 1;
-  user.luck = 0;
-
-} else {
-  // ❌ NO REWARD
-  user.luck += 25;
-      }
-
-      if (roll < 40) {
-        reward.points = 5;
-        user.points += 5;
-        user.luck = 0;
-      } else if (roll < 65) {
-        reward.points = 10;
-        user.points += 10;
-        user.luck = 0;
-      } else if (roll < 80) {
-        reward.energy = 2;
-        user.energy += 2;
-        user.luck = 0;
-      } else {
-        user.luck += 25;
-      }
+      // ❌ NO REWARD
+      user.luck += 25;
     }
 
     /* ===== ACHIEVEMENTS ===== */
+
     if (unlockAchievement(user, "FIRST_SCRATCH")) {
       user.energy += 3;
       unlocked.push({ key: "FIRST_SCRATCH", reward: "+3 Energy" });
     }
 
-    if (user.luck >= MAX_LUCK) {
-      if (unlockAchievement(user, "LUCK_MASTER")) {
-        user.points += 20;
-        unlocked.push({ key: "LUCK_MASTER", reward: "+20 Points" });
-      }
-    }
-
     if (reward.points >= 20) {
       if (unlockAchievement(user, "BIG_WIN")) {
         user.energy += 5;
-        unlocked.push({ key: "BIG_WIN", reward: "+5 Energy" });
+        user.gold += 2;
+        unlocked.push({
+          key: "BIG_WIN",
+          reward: "+5 Energy, +2 Gold"
+        });
       }
     }
 
+    if (user.luck >= MAX_LUCK) {
+      if (unlockAchievement(user, "LUCK_MASTER")) {
+        user.points += 20;
+        unlocked.push({
+          key: "LUCK_MASTER",
+          reward: "+20 Points"
+        });
+      }
+    }
+
+    /* ===== FINALIZE ===== */
     user.luck = Math.max(0, Math.min(MAX_LUCK, user.luck));
     user.level = calcLevel(user.points);
 
@@ -314,6 +313,8 @@ app.post("/api/scratch", async (req, res) => {
       energy: user.energy,
       level: user.level,
       luck: user.luck,
+      gold: user.gold,
+      diamond: user.diamond,
       achievementsUnlocked: unlocked,
       referralCode: user.referralCode,
       referralsCount: user.referralsCount
@@ -401,28 +402,38 @@ app.post("/api/referral/claim", async (req, res) => {
     }
 
     /* ===== SAFE INIT ===== */
-    if (typeof inviter.referralsCount !== "number") {
-      inviter.referralsCount = 0;
-    }
+    if (typeof inviter.referralsCount !== "number") inviter.referralsCount = 0;
+    if (typeof inviter.energy !== "number") inviter.energy = 0;
+    if (typeof inviter.points !== "number") inviter.points = 0;
+    if (typeof inviter.gold !== "number") inviter.gold = 0;
+    if (typeof inviter.diamond !== "number") inviter.diamond = 0;
 
-    // 🎁 referral milestones
-if (inviter.referralsCount === 5) {
-  inviter.gold += 5;
-}
+    if (typeof user.energy !== "number") user.energy = 0;
 
-if (inviter.referralsCount === 20) {
-  inviter.diamond += 1;
-}
-
-    /* ===== APPLY REWARDS ===== */
+    /* ===== APPLY BASE REWARDS ===== */
     const INVITER_ENERGY = 25;
     const INVITER_POINTS = 125;
-    const USER_ENERGY = 10; // zaka iya canzawa
+    const USER_ENERGY = 10;
 
     inviter.energy += INVITER_ENERGY;
     inviter.points += INVITER_POINTS;
-    inviter.referralsCount += 1;
 
+    inviter.referralsCount += 1; // 🔥 increment FIRST
+
+    /* ===== MILESTONE REWARDS (ONCE) ===== */
+    let milestoneReward = null;
+
+    if (inviter.referralsCount === 5) {
+      inviter.gold += 5;
+      milestoneReward = { gold: 5, message: "🥇 5 referrals! +5 Gold" };
+    }
+
+    if (inviter.referralsCount === 20) {
+      inviter.diamond += 1;
+      milestoneReward = { diamond: 1, message: "💎 20 referrals! +1 Diamond" };
+    }
+
+    /* ===== UPDATE USER ===== */
     user.referredBy = inviter.referralCode;
     user.energy += USER_ENERGY;
 
@@ -432,16 +443,23 @@ if (inviter.referralsCount === 20) {
     res.json({
       success: true,
 
-      // 🔥 return FULL sync
+      // 🔄 FULL SYNC
       userEnergy: user.energy,
-      userPoints: user.points,
 
-      inviterReward: {
+      inviter: {
+        energy: inviter.energy,
+        points: inviter.points,
+        gold: inviter.gold,
+        diamond: inviter.diamond,
+        referralsCount: inviter.referralsCount
+      },
+
+      baseReward: {
         energy: INVITER_ENERGY,
         points: INVITER_POINTS
       },
 
-      referralsCount: inviter.referralsCount
+      milestoneReward
     });
 
   } catch (err) {
@@ -461,43 +479,67 @@ app.post("/api/streak/check", async (req, res) => {
     const now = Date.now();
     const ONE_DAY = 24 * 60 * 60 * 1000;
 
+    // ===== SAFE INIT =====
+    if (typeof user.streak !== "number") user.streak = 0;
+    if (typeof user.gold !== "number") user.gold = 0;
+
     let reward = null;
 
-    if (user.streak === 7) {
-  user.energy += 50;
-  user.gold += 3; // 🥇
-  reward = { energy: 50, message: "🏆 7-day streak! +50 Energy +3 Gold" };
-    }
-
-    // first time
+    // ===== FIRST TIME =====
     if (!user.lastStreakAt) {
       user.streak = 1;
-      reward = { energy: 5, message: "Day 1 streak! +5 Energy" };
       user.energy += 5;
+      reward = {
+        energy: 5,
+        message: "🔥 Day 1 streak! +5 Energy"
+      };
     } else {
       const diff = now - user.lastStreakAt;
 
+      // ===== CONTINUED STREAK =====
       if (diff >= ONE_DAY && diff < ONE_DAY * 2) {
-        // continued streak
         user.streak += 1;
 
-        if (user.streak === 3) {
-          user.energy += 15;
-          reward = { energy: 15, message: "🔥 3-day streak! +15 Energy" };
-        } else if (user.streak === 7) {
+        // 🎉 7 DAYS – BIG REWARD
+        if (user.streak === 7) {
           user.energy += 50;
-          reward = { energy: 50, message: "🏆 7-day streak! +50 Energy" };
+          user.gold += 3;
+          reward = {
+            energy: 50,
+            gold: 3,
+            message: "🏆 7-day streak! +50 Energy +3 Gold"
+          };
+
+          // 🔁 reset streak after reward
+          user.streak = 0;
+
+        } else if (user.streak === 3) {
+          user.energy += 15;
+          reward = {
+            energy: 15,
+            message: "🔥 3-day streak! +15 Energy"
+          };
+
         } else {
           user.energy += 5;
-          reward = { energy: 5, message: `Day ${user.streak} streak! +5 Energy` };
+          reward = {
+            energy: 5,
+            message: `Day ${user.streak} streak! +5 Energy`
+          };
         }
-      } else if (diff >= ONE_DAY * 2) {
-        // missed a day → reset
+
+      }
+      // ===== MISSED A DAY =====
+      else if (diff >= ONE_DAY * 2) {
         user.streak = 1;
         user.energy += 5;
-        reward = { energy: 5, message: "Streak restarted! +5 Energy" };
-      } else {
-        // already claimed today
+        reward = {
+          energy: 5,
+          message: "⏳ Streak restarted! +5 Energy"
+        };
+      }
+      // ===== ALREADY CLAIMED TODAY =====
+      else {
         return res.json({ success: false });
       }
     }
@@ -509,7 +551,8 @@ app.post("/api/streak/check", async (req, res) => {
       success: true,
       streak: user.streak,
       reward,
-      energy: user.energy
+      energy: user.energy,
+      gold: user.gold
     });
 
   } catch (err) {
