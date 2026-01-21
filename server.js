@@ -10,6 +10,9 @@ import dotenv from "dotenv";
 import User from "./models/User.js";
 import ACHIEVEMENTS from "./achievements.js";
 
+import helmet from "helmet";
+import compression from "compression";
+
 dotenv.config();
 
 const app = express();
@@ -21,6 +24,8 @@ const __dirname = path.dirname(__filename);
 /* ================= MIDDLEWARE ================= */
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
+app.use(compression());
 
 app.use(
   cors({
