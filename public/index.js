@@ -487,4 +487,3 @@ function renderAchievements(list, unlockedKeys) {
   });
 }
 
-
