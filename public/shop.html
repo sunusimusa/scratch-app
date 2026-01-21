@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shop • Scratch Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dark-bg">
+
+  <div class="container">
+    <h2 class="section-title">🛒 Shop</h2>
+
+    <!-- POINTS -->
+    <div class="shop-card">
+      <h3>🪙 Points Pack</h3>
+      <p>150 Points → <b>+50 Energy</b></p>
+      <button onclick="buyWithPoints()">Buy</button>
+    </div>
+
+    <!-- GOLD -->
+    <div class="shop-card gold">
+      <h3>🥇 Gold Pack</h3>
+      <p>75 Gold → <b>+50 Energy</b></p>
+      <button onclick="buyWithGold()">Buy</button>
+    </div>
+
+    <!-- DIAMOND -->
+    <div class="shop-card diamond">
+      <h3>💎 Diamond Pack</h3>
+      <p>100 Diamond → <b>+1000 Energy</b></p>
+      <button onclick="buyWithDiamond()">Buy</button>
+    </div>
+
+    <a href="/" class="back-link">← Back to Game</a>
+  </div>
+
+  <script src="shop.js"></script>
+</body>
+  </html>
