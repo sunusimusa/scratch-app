@@ -448,25 +448,40 @@ app.post("/api/streak/check", async (req, res) => {
   }
 });
 
+const ACHIEVEMENTS = require("./achievements");
+
 app.get("/api/achievements", async (req, res) => {
   try {
     const sid = req.cookies.sid;
-    if (!sid) return res.json({ error: "NO_SESSION" });
+    if (!sid) {
+      return res.status(401).json({ error: "NO_SESSION" });
+    }
 
     const user = await User.findOne({ sessionId: sid });
-    if (!user) return res.json({ error: "NO_USER" });
+    if (!user) {
+      return res.status(404).json({ error: "NO_USER" });
+    }
 
-    const unlocked = user.achievements || [];
+    if (!Array.isArray(user.achievements)) {
+      user.achievements = [];
+    }
 
-    const list = ACHIEVEMENTS.map(a => ({
-      ...a,
-      unlocked: unlocked.includes(a.key)
+    // 🔄 merge user state with master list
+    const result = ACHIEVEMENTS.map(a => ({
+      key: a.key,
+      title: a.title,
+      desc: a.desc,
+      reward: a.reward,
+      unlocked: user.achievements.includes(a.key)
     }));
 
-    res.json({ success: true, achievements: list });
+    res.json({
+      success: true,
+      achievements: result
+    });
 
   } catch (err) {
-    console.error("ACHIEVEMENTS ERROR:", err);
+    console.error("ACHIEVEMENTS API ERROR:", err);
     res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
