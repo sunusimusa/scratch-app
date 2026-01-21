@@ -293,7 +293,7 @@ async function checkBonusFromServer() {
     const lastBonus = localStorage.getItem("lastBonusTime");
     const now = Date.now();
 
-    // ⛔ client-side protection (30 minutes)
+    // ⛔ kariya ta client (30 min)
     if (lastBonus && now - Number(lastBonus) < 30 * 60 * 1000) {
       return;
     }
@@ -313,11 +313,10 @@ async function checkBonusFromServer() {
     // 🔒 lock locally
     localStorage.setItem("lastBonusTime", now);
 
-  } catch (err) {
-    console.warn("Bonus skipped");
+  } catch {
+    console.log("Bonus skipped");
   }
 }
-
 /* ================= CLAIM SCRATCH ================= */
 async function claimScratchReward() {
   showStatus("🎁 Checking reward...");
