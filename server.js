@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 import User from "./models/User.js";
+import ACHIEVEMENTS from "./achievements.js";
 
 dotenv.config();
 
@@ -448,26 +449,19 @@ app.post("/api/streak/check", async (req, res) => {
   }
 });
 
-const ACHIEVEMENTS = require("./achievements");
-
 app.get("/api/achievements", async (req, res) => {
   try {
     const sid = req.cookies.sid;
-    if (!sid) {
-      return res.status(401).json({ error: "NO_SESSION" });
-    }
+    if (!sid) return res.status(401).json({ error: "NO_SESSION" });
 
     const user = await User.findOne({ sessionId: sid });
-    if (!user) {
-      return res.status(404).json({ error: "NO_USER" });
-    }
+    if (!user) return res.status(404).json({ error: "NO_USER" });
 
     if (!Array.isArray(user.achievements)) {
       user.achievements = [];
     }
 
-    // 🔄 merge user state with master list
-    const result = ACHIEVEMENTS.map(a => ({
+    const list = ACHIEVEMENTS.map(a => ({
       key: a.key,
       title: a.title,
       desc: a.desc,
@@ -477,7 +471,7 @@ app.get("/api/achievements", async (req, res) => {
 
     res.json({
       success: true,
-      achievements: result
+      achievements: list
     });
 
   } catch (err) {
