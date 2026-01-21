@@ -386,6 +386,68 @@ app.post("/api/referral/claim", async (req, res) => {
   }
 });
 
+app.post("/api/streak/check", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.json({ error: "NO_USER" });
+
+    const now = Date.now();
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+
+    let reward = null;
+
+    // first time
+    if (!user.lastStreakAt) {
+      user.streak = 1;
+      reward = { energy: 5, message: "Day 1 streak! +5 Energy" };
+      user.energy += 5;
+    } else {
+      const diff = now - user.lastStreakAt;
+
+      if (diff >= ONE_DAY && diff < ONE_DAY * 2) {
+        // continued streak
+        user.streak += 1;
+
+        if (user.streak === 3) {
+          user.energy += 15;
+          reward = { energy: 15, message: "🔥 3-day streak! +15 Energy" };
+        } else if (user.streak === 7) {
+          user.energy += 50;
+          reward = { energy: 50, message: "🏆 7-day streak! +50 Energy" };
+        } else {
+          user.energy += 5;
+          reward = { energy: 5, message: `Day ${user.streak} streak! +5 Energy` };
+        }
+      } else if (diff >= ONE_DAY * 2) {
+        // missed a day → reset
+        user.streak = 1;
+        user.energy += 5;
+        reward = { energy: 5, message: "Streak restarted! +5 Energy" };
+      } else {
+        // already claimed today
+        return res.json({ success: false });
+      }
+    }
+
+    user.lastStreakAt = now;
+    await user.save();
+
+    res.json({
+      success: true,
+      streak: user.streak,
+      reward,
+      energy: user.energy
+    });
+
+  } catch (err) {
+    console.error("STREAK ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
