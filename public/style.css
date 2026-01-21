@@ -394,3 +394,33 @@ button:disabled {
 .watch-ad-btn:active {
   transform: scale(0.97);
 }
+
+.achievements-section {
+  margin-top: 20px;
+}
+
+.achievement {
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: #1f2933;
+  color: #fff;
+}
+
+.achievement.unlocked {
+  border-left: 5px solid #22c55e;
+  background: linear-gradient(135deg, #14532d, #166534);
+}
+
+.achievement.locked {
+  opacity: 0.55;
+}
+
+.achievement .title {
+  font-weight: 700;
+}
+
+.achievement .reward {
+  color: #facc15;
+  font-size: 14px;
+}
