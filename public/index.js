@@ -245,6 +245,8 @@ async function finishAd() {
 }
 
 /* ================= START SCRATCH ================= */
+const SCRATCH_COST = 3; // ⚠️ dole ya zama iri daya da na server
+
 function startScratch() {
   if (SCRATCHING) return;
 
@@ -253,8 +255,9 @@ function startScratch() {
     return;
   }
 
-  if (USER.energy <= 0) {
-    showStatus("⚡ No energy left");
+  // ❌ Energy bai isa ba
+  if (USER.energy < SCRATCH_COST) {
+    showStatus("⚡ Not enough energy — watch ad or invite friends");
     updateUI();
     return;
   }
