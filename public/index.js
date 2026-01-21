@@ -437,3 +437,54 @@ window.addEventListener("load", () => {
   checkDailyStreak();
 });
 
+/* =====================================================
+   ACHIEVEMENTS (CLIENT)
+===================================================== */
+
+let ALL_ACHIEVEMENTS = [];
+
+/* ================= LOAD ACHIEVEMENTS ================= */
+async function loadAchievements() {
+  try {
+    const res = await fetch("/api/achievements", {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (!data.success) return;
+
+    ALL_ACHIEVEMENTS = data.achievements;
+    renderAchievements(data.achievements, data.unlocked || []);
+
+  } catch (err) {
+    console.warn("Achievements load failed");
+  }
+}
+
+/* ================= RENDER ================= */
+function renderAchievements(list, unlockedKeys) {
+  const box = document.getElementById("achievementsList");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  list.forEach(ach => {
+    const unlocked = unlockedKeys.includes(ach.key);
+
+    const div = document.createElement("div");
+    div.className = "achievement-item " + (unlocked ? "unlocked" : "locked");
+
+    div.innerHTML = `
+      <div class="ach-icon">${unlocked ? "🏆" : "🔒"}</div>
+      <div class="ach-info">
+        <div class="ach-title">${ach.title}</div>
+        <div class="ach-desc">${ach.desc}</div>
+        <div class="ach-reward">${ach.reward}</div>
+      </div>
+    `;
+
+    box.appendChild(div);
+  });
+}
+
+
