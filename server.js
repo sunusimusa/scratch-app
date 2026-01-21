@@ -270,13 +270,18 @@ app.post("/api/scratch", async (req, res) => {
 app.post("/api/bonus/check", async (req, res) => {
   try {
     const sid = req.cookies.sid;
-    if (!sid) return res.json({ error: "NO_SESSION" });
+    if (!sid) return res.json({ bonusAvailable: false });
 
     const user = await User.findOne({ sessionId: sid });
-    if (!user) return res.json({ error: "NO_USER" });
+    if (!user) return res.json({ bonusAvailable: false });
 
     const NOW = Date.now();
     const BONUS_INTERVAL = 30 * 60 * 1000; // 30 minutes
+
+    // 🛡️ idan bai taba samun bonus ba
+    if (!user.lastBonusAt) {
+      user.lastBonusAt = 0;
+    }
 
     if (NOW - user.lastBonusAt < BONUS_INTERVAL) {
       return res.json({
@@ -290,7 +295,6 @@ app.post("/api/bonus/check", async (req, res) => {
 
     user.energy += reward;
     user.lastBonusAt = NOW;
-
     await user.save();
 
     res.json({
@@ -301,7 +305,7 @@ app.post("/api/bonus/check", async (req, res) => {
 
   } catch (err) {
     console.error("BONUS ERROR:", err);
-    res.status(500).json({ error: "SERVER_ERROR" });
+    res.status(500).json({ bonusAvailable: false });
   }
 });
 
