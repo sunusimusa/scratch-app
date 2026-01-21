@@ -21,6 +21,9 @@ lastStreakAt: { type: Number, default: 0 },
   // 🏆 Achievements
   achievements: { type: [String], default: [] },
 
+  gold: { type: Number, default: 0 },
+diamond: { type: Number, default: 0 },
+
   // ⏰ Bonus / Daily
   dailyEnergyDate: String,
   lastAdsDate: String,
