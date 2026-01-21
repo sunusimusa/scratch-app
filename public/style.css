@@ -424,3 +424,31 @@ button:disabled {
   color: #facc15;
   font-size: 14px;
 }
+
+.ach-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ach-title {
+  font-weight: 700;
+}
+
+.ach-desc {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.ach-reward {
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.locked {
+  font-size: 20px;
+}
+
+.unlocked-icon {
+  font-size: 22px;
+}
