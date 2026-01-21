@@ -448,6 +448,29 @@ app.post("/api/streak/check", async (req, res) => {
   }
 });
 
+app.get("/api/achievements", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.json({ error: "NO_USER" });
+
+    const unlocked = user.achievements || [];
+
+    const list = ACHIEVEMENTS.map(a => ({
+      ...a,
+      unlocked: unlocked.includes(a.key)
+    }));
+
+    res.json({ success: true, achievements: list });
+
+  } catch (err) {
+    console.error("ACHIEVEMENTS ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
