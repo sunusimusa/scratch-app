@@ -8,7 +8,6 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 import User from "./models/User.js";
-import ACHIEVEMENTS from "./achievements.js";
 
 import helmet from "helmet";
 import compression from "compression";
@@ -60,6 +59,34 @@ function canClaimBonus(user) {
 function generateReferralCode() {
   return "REF" + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
+
+/* ================= ACHIEVEMENTS ================= */
+const ACHIEVEMENTS = [
+  {
+    key: "FIRST_SCRATCH",
+    title: "First Scratch",
+    desc: "Complete your first scratch",
+    reward: "+3 Energy"
+  },
+  {
+    key: "BIG_WIN",
+    title: "Big Win",
+    desc: "Win 20 points in one scratch",
+    reward: "+5 Energy"
+  },
+  {
+    key: "LUCK_MASTER",
+    title: "Luck Master",
+    desc: "Fill Luck Meter to 100%",
+    reward: "+20 Points"
+  },
+  {
+    key: "STREAK_7",
+    title: "7 Days Streak",
+    desc: "Play 7 days in a row",
+    reward: "+50 Energy ⭐"
+  }
+];
 
 /* =====================================================
    API: USER INIT
