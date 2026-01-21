@@ -333,6 +333,14 @@ async function claimScratchReward() {
 
     const data = await res.json();
 
+     if (data.reward?.gold > 0) {
+  rewardBox.innerText = `🥇 +${data.reward.gold} GOLD`;
+}
+
+if (data.reward?.diamond > 0) {
+  rewardBox.innerText = `💎 +${data.reward.diamond} DIAMOND`;
+}
+
     if (data.error === "NO_ENERGY") {
       showStatus("⚡ Energy finished");
       return;
