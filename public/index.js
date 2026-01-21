@@ -333,16 +333,9 @@ async function claimScratchReward() {
 
     const data = await res.json();
 
-     if (data.reward?.gold > 0) {
-  rewardBox.innerText = `🥇 +${data.reward.gold} GOLD`;
-}
-
-if (data.reward?.diamond > 0) {
-  rewardBox.innerText = `💎 +${data.reward.diamond} DIAMOND`;
-}
-
+    /* ===== ERROR HANDLING ===== */
     if (data.error === "NO_ENERGY") {
-      showStatus("⚡ Energy finished");
+      showStatus("⚡ Not enough energy");
       return;
     }
 
@@ -351,34 +344,50 @@ if (data.reward?.diamond > 0) {
       return;
     }
 
-    // ✅ SYNC FROM SERVER
+    /* ===== SYNC USER ===== */
     USER.balance = data.balance;
     USER.energy  = data.energy;
     USER.level   = data.level;
     USER.luck    = data.luck;
+    USER.gold    = data.gold ?? USER.gold;
+    USER.diamond = data.diamond ?? USER.diamond;
 
     updateUI();
 
-    // 🎁 reward text
+    /* ===== SHOW REWARD ===== */
     const rewardBox = document.getElementById("scratchReward");
-    if (rewardBox) {
-      if (data.reward?.points > 0) {
-        rewardBox.innerText = `🎉 +${data.reward.points} POINTS`;
-      } else if (data.reward?.energy > 0) {
-        rewardBox.innerText = `⚡ +${data.reward.energy} ENERGY`;
-      } else {
-        rewardBox.innerText = "🙂 NO REWARD";
+    if (rewardBox && data.reward) {
+      const parts = [];
+
+      if (data.reward.points > 0) {
+        parts.push(`🎉 +${data.reward.points} POINTS`);
       }
+
+      if (data.reward.energy > 0) {
+        parts.push(`⚡ +${data.reward.energy} ENERGY`);
+      }
+
+      if (data.reward.gold > 0) {
+        parts.push(`🥇 +${data.reward.gold} GOLD`);
+      }
+
+      if (data.reward.diamond > 0) {
+        parts.push(`💎 +${data.reward.diamond} DIAMOND`);
+      }
+
+      rewardBox.innerText =
+        parts.length > 0 ? parts.join(" • ") : "🙂 NO REWARD";
     }
 
-    // 🏆 achievements
+    /* ===== ACHIEVEMENTS ===== */
     if (Array.isArray(data.achievementsUnlocked)) {
       data.achievementsUnlocked.forEach(showAchievement);
     }
 
     showStatus("🎟️ Scratch complete!");
 
-  } catch {
+  } catch (err) {
+    console.error(err);
     showStatus("❌ Network error");
   } finally {
     SCRATCHING = false;
@@ -386,7 +395,7 @@ if (data.reward?.diamond > 0) {
   }
 }
 
-/* expose to script.js */
+/* expose */
 window.claimScratchReward = claimScratchReward;
 
 async function claimReferral(code) {
