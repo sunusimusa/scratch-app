@@ -39,19 +39,21 @@ window.initScratchCard = initScratchCard;
 /* =====================================================
    30 MIN BONUS CHECK (CLIENT SIDE)
 ===================================================== */
-let bonusIntervalStarted = false;
+let bonusTimerStarted = false;
 
 function startBonusTimer() {
-  if (bonusIntervalStarted) return; // kada ya ninku
-  bonusIntervalStarted = true;
+  if (bonusTimerStarted) return;
+  bonusTimerStarted = true;
 
-  // 🔥 Duba bonus nan take (idan lokaci ya cika)
+  // check once when app opens
   checkBonusFromServer();
 
-  // ⏱️ sai ya ci gaba duk minti 30
+  // then every 30 minutes
   setInterval(checkBonusFromServer, 30 * 60 * 1000);
 }
 
+// run once
+window.addEventListener("load", startBonusTimer);
 
 /* ================= DRAW ================= */
 function draw(x, y) {
