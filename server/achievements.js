@@ -25,4 +25,4 @@ const ACHIEVEMENTS = [
   }
 ];
 
-module.exports = ACHIEVEMENTS;
+export default ACHIEVEMENTS;
