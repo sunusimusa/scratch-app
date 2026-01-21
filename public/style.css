@@ -452,3 +452,15 @@ button:disabled {
 .unlocked-icon {
   font-size: 22px;
 }
+
+function buyWithPoints() {
+  alert("🪙 Buy with Points (server zai zo daga baya)");
+}
+
+function buyWithGold() {
+  alert("🥇 Buy with Gold (server zai zo daga baya)");
+}
+
+function buyWithDiamond() {
+  alert("💎 Buy with Diamond (server zai zo daga baya)");
+  }
