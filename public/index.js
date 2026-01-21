@@ -407,3 +407,34 @@ async function claimReferral(code) {
     showStatus("❌ Network error");
   }
 }
+
+async function checkDailyStreak() {
+  try {
+    const res = await fetch("/api/streak/check", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (!data.success) return;
+
+    USER.energy = data.energy;
+    updateUI();
+
+    if (data.reward) {
+      showPopup(
+        "🔥 Daily Streak!",
+        data.reward.message
+      );
+    }
+
+  } catch (err) {
+    console.log("Streak check skipped");
+  }
+}
+
+window.addEventListener("load", () => {
+  checkDailyStreak();
+});
+
+
