@@ -14,6 +14,7 @@ let SCRATCHING = false;
 document.addEventListener("DOMContentLoaded", () => {
   initUser();
   bindUI();
+  loadAchievements(); // 👈 nan
 });
 
 /* ================= UI BIND ================= */
