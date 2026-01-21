@@ -1,26 +1,39 @@
-const ACHIEVEMENTS = [
-  {
-    key: "FIRST_SCRATCH",
-    title: "First Scratch",
-    desc: "Complete your first scratch",
-    reward: "+3 Energy"
-  },
-  {
-    key: "BIG_WIN",
-    title: "Big Win",
-    desc: "Win 20 points in one scratch",
-    reward: "+5 Energy"
-  },
-  {
-    key: "LUCK_MASTER",
-    title: "Luck Master",
-    desc: "Fill Luck Meter to 100%",
-    reward: "+20 Points"
-  },
-  {
-    key: "STREAK_7",
-    title: "7 Days Streak",
-    desc: "Play 7 days in a row",
-    reward: "+50 Energy ⭐"
+async function loadAchievements() {
+  try {
+    const res = await fetch("/api/achievements", {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (!data.success) return;
+
+    renderAchievements(data.achievements);
+
+  } catch (err) {
+    console.log("Achievements load failed");
   }
-];
+}
+
+function renderAchievements(list) {
+  const box = document.getElementById("achievementsList");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  list.forEach(a => {
+    const div = document.createElement("div");
+    div.className = "achievement " + (a.unlocked ? "unlocked" : "locked");
+
+    div.innerHTML = `
+      <div class="title">
+        ${a.unlocked ? "🏆" : "🔒"} ${a.title}
+      </div>
+      <div class="desc">${a.desc}</div>
+      <div class="reward">${a.reward}</div>
+    `;
+
+    box.appendChild(div);
+  });
+}
+
+window.addEventListener("load", loadAchievements);
