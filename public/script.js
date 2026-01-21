@@ -39,28 +39,19 @@ window.initScratchCard = initScratchCard;
 /* =====================================================
    30 MIN BONUS CHECK (CLIENT SIDE)
 ===================================================== */
+let bonusIntervalStarted = false;
 
 function startBonusTimer() {
-  setInterval(async () => {
-    try {
-      const res = await fetch("/api/bonus", {
-        method: "POST",
-        credentials: "include"
-      });
+  if (bonusIntervalStarted) return; // kada ya ninku
+  bonusIntervalStarted = true;
 
-      const data = await res.json();
+  // 🔥 Duba bonus nan take (idan lokaci ya cika)
+  checkBonusFromServer();
 
-      if (data.success) {
-        showBonusPopup(data.reward);
-        USER.energy = data.energy;
-        updateUI();
-      }
-
-    } catch (err) {
-      console.log("Bonus check skipped");
-    }
-  }, 30 * 60 * 1000); // 30 minutes
+  // ⏱️ sai ya ci gaba duk minti 30
+  setInterval(checkBonusFromServer, 30 * 60 * 1000);
 }
+
 
 /* ================= DRAW ================= */
 function draw(x, y) {
