@@ -225,7 +225,6 @@ app.post("/api/scratch", async (req, res) => {
     if (!Array.isArray(user.achievements)) user.achievements = [];
 
     const MAX_LUCK = 100;
-    let reward = { points: 0, energy: 0 };
     let reward = { points: 0, energy: 0, gold: 0, diamond: 0 };
     let unlocked = [];
 
