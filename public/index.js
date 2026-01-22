@@ -41,12 +41,13 @@ async function initUser() {
 
     /* ================= USER STATE ================= */
     USER = {
-      balance: Number(data.points) || 0,
-      energy:  Number(data.energy) || 0,
-      level:   Number(data.level)  || 1,
-      luck:    Number(data.luck)   || 0
-    };
-
+    balance: Number(data.points) || 0,
+    energy:  Number(data.energy) || 0,
+    level:   Number(data.level)  || 1,
+    luck:    Number(data.luck)   || 0,
+    gold:    Number(data.gold)   || 0,
+    diamond: Number(data.diamond)|| 0
+  };
     /* ================= REFERRAL CODE ================= */
     const refEl = document.getElementById("referralCode");
     if (refEl) {
