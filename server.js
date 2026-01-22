@@ -670,25 +670,40 @@ app.post("/api/shop/buy", async (req, res) => {
     const user = await User.findOne({ sessionId: sid });
     if (!user) return res.json({ error: "NO_USER" });
 
+    let cost = {};
     let rewardEnergy = 0;
 
-    /* ===== SHOP LOGIC ===== */
     if (item === "ENERGY_POINTS") {
-      if (user.points < 150) return res.json({ error: "NOT_ENOUGH_POINTS" });
-      user.points -= 150;
+      cost = { points: 150 };
       rewardEnergy = 50;
+
+      if (user.points < 150) {
+        return res.json({ error: "NOT_ENOUGH_POINTS" });
+      }
+
+      user.points -= 150;
     }
 
     else if (item === "ENERGY_GOLD") {
-      if (user.gold < 75) return res.json({ error: "NOT_ENOUGH_GOLD" });
-      user.gold -= 75;
+      cost = { gold: 75 };
       rewardEnergy = 50;
+
+      if (user.gold < 75) {
+        return res.json({ error: "NOT_ENOUGH_GOLD" });
+      }
+
+      user.gold -= 75;
     }
 
     else if (item === "ENERGY_DIAMOND") {
-      if (user.diamond < 1000) return res.json({ error: "NOT_ENOUGH_DIAMOND" });
-      user.diamond -= 1000;
+      cost = { diamond: 1000 };
       rewardEnergy = 100;
+
+      if (user.diamond < 1000) {
+        return res.json({ error: "NOT_ENOUGH_DIAMOND" });
+      }
+
+      user.diamond -= 1000;
     }
 
     else {
@@ -700,11 +715,11 @@ app.post("/api/shop/buy", async (req, res) => {
 
     res.json({
       success: true,
+      rewardEnergy,
       energy: user.energy,
       points: user.points,
       gold: user.gold,
-      diamond: user.diamond,
-      rewardEnergy
+      diamond: user.diamond
     });
 
   } catch (err) {
