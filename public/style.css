@@ -517,3 +517,33 @@ function buyWithDiamond() {
 .shop-btn.diamond {
   background: linear-gradient(135deg, #38bdf8, #0ea5e9);
 }
+
+.disclaimer {
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+  margin: 20px;
+}
+
+.about-section {
+  background: #111;
+  border-radius: 14px;
+  padding: 16px;
+  margin: 20px;
+  color: #eee;
+}
+
+.about-section h3,
+.about-section h4 {
+  color: #ffd54a;
+}
+
+.about-section ul {
+  padding-left: 18px;
+}
+
+.about-section .note {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-top: 10px;
+}
