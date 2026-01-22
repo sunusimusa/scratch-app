@@ -464,3 +464,32 @@ function buyWithGold() {
 function buyWithDiamond() {
   alert("💎 Buy with Diamond (server zai zo daga baya)");
   }
+
+/* ===== INVENTORY ===== */
+.inventory-card {
+  background: #1c1c28;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 20px auto;
+  width: 260px;
+  color: #fff;
+}
+
+.inventory-card h3 {
+  margin: 0 0 10px;
+  color: #ffd700;
+}
+
+.inventory-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 15px;
+  border-bottom: 1px dashed #333;
+}
+
+.inventory-row:last-child {
+  border-bottom: none;
+}
+
+
