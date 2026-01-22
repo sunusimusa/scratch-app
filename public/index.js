@@ -132,21 +132,28 @@ async function claimReferralCode() {
 }
 
 /* ================= UI UPDATE ================= */
-function updateUI() {
+  function updateUI() {
   if (!USER) return;
 
-  const scratchBtn = document.getElementById("scratchBtn");
   const energyText = document.getElementById("energyText");
-  const energyFill = document.getElementById("energyFill");
-  const levelText  = document.getElementById("levelText");
   const pointsText = document.getElementById("pointsText");
-
-  const luckFill   = document.getElementById("luckFill");
-  const luckText   = document.getElementById("luckText");
+  const levelText  = document.getElementById("levelText");
 
   if (energyText) energyText.innerText = `Energy: ${USER.energy}`;
   if (pointsText) pointsText.innerText = `Points: ${USER.balance}`;
   if (levelText)  levelText.innerText  = `Level: ${USER.level}`;
+
+  // ===== INVENTORY =====
+  const invEnergy  = document.getElementById("invEnergy");
+  const invPoints  = document.getElementById("invPoints");
+  const invGold    = document.getElementById("invGold");
+  const invDiamond = document.getElementById("invDiamond");
+
+  if (invEnergy)  invEnergy.innerText  = USER.energy ?? 0;
+  if (invPoints)  invPoints.innerText  = USER.balance ?? 0;
+  if (invGold)    invGold.innerText    = USER.gold ?? 0;
+  if (invDiamond) invDiamond.innerText = USER.diamond ?? 0;
+  }
 
   if (energyFill) {
     energyFill.style.width = Math.min(USER.energy * 10, 100) + "%";
