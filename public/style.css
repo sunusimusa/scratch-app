@@ -547,3 +547,19 @@ function buyWithDiamond() {
   opacity: 0.8;
   margin-top: 10px;
 }
+
+.footer-links {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+.footer-links a {
+  color: #ffd54a;
+  text-decoration: none;
+  margin: 0 6px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
