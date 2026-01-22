@@ -517,3 +517,39 @@ function renderAchievements(list, unlockedKeys) {
   });
 }
 
+async function buyItem(item) {
+  showStatus("🛒 Processing purchase...");
+
+  try {
+    const res = await fetch("/api/shop/buy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ item })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      if (data.error === "NOT_ENOUGH_POINTS") showStatus("❌ Not enough Points");
+      else if (data.error === "NOT_ENOUGH_GOLD") showStatus("❌ Not enough Gold");
+      else if (data.error === "NOT_ENOUGH_DIAMOND") showStatus("❌ Not enough Diamond");
+      else showStatus("❌ Purchase failed");
+      return;
+    }
+
+    // ✅ SYNC USER
+    USER.energy  = data.energy;
+    USER.balance = data.points;
+    USER.gold    = data.gold;
+    USER.diamond = data.diamond;
+
+    updateUI();
+    showStatus(`✅ +${data.rewardEnergy} Energy added!`);
+
+  } catch {
+    showStatus("❌ Network error");
+  }
+}
+
+
