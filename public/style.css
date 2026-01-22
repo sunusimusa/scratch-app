@@ -492,4 +492,28 @@ function buyWithDiamond() {
   border-bottom: none;
 }
 
+.shop-card {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #111;
+}
 
+.shop-btn {
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0;
+  border-radius: 14px;
+  font-weight: 700;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+}
+
+.shop-btn.gold {
+  background: linear-gradient(135deg, #facc15, #ca8a04);
+}
+
+.shop-btn.diamond {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+}
