@@ -6,77 +6,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body class="dark-bg">
-
   <div class="container">
-    <h2 class="section-title">🛒 Shop</h2>
 
-    <!-- POINTS -->
-    <div class="shop-card">
-      <h3>🪙 Points Pack</h3>
-      <p>150 Points → <b>+50 Energy</b></p>
-      <button onclick="buyWithPoints()">Buy</button>
-    </div>
-
-    <!-- GOLD -->
-    <div class="shop-card gold">
-      <h3>🥇 Gold Pack</h3>
-      <p>75 Gold → <b>+50 Energy</b></p>
-      <button onclick="buyWithGold()">Buy</button>
-    </div>
-
-    <!-- DIAMOND -->
-    <div class="shop-card diamond">
-      <h3>💎 Diamond Pack</h3>
-      <p>100 Diamond → <b>+1000 Energy</b></p>
-      <button onclick="buyWithDiamond()">Buy</button>
-    </div>
+    <h2 class="section-title">🛒 Energy Shop</h2>
 
     <div class="shop-card">
-  <h3>🛒 Energy Shop</h3>
+      <button onclick="buyItem('ENERGY_POINTS')" class="shop-btn">
+        ⚡ 50 Energy – 150 Points
+      </button>
 
-  <button onclick="buyItem('ENERGY_POINTS')" class="shop-btn">
-    ⚡ 50 Energy – 150 Points
-  </button>
+      <button onclick="buyItem('ENERGY_GOLD')" class="shop-btn gold">
+        🥇 50 Energy – 75 Gold
+      </button>
 
-  <button onclick="buyItem('ENERGY_GOLD')" class="shop-btn gold">
-    🥇 50 Energy – 75 Gold
-  </button>
-
-  <button onclick="buyItem('ENERGY_DIAMOND')" class="shop-btn diamond">
-    💎 100 Energy – 1000 Diamond
-  </button>
+      <button onclick="buyItem('ENERGY_DIAMOND')" class="shop-btn diamond">
+        💎 100 Energy – 1000 Diamond
+      </button>
     </div>
 
+    <!-- INVENTORY -->
+    <div class="inventory-card">
+      <h3>🎒 Inventory</h3>
 
-    <!-- ================= INVENTORY ================= -->
-<div class="inventory-card">
-  <h3>🎒 Inventory</h3>
+      <div class="inventory-row">
+        <span>⚡ Energy</span>
+        <b id="invEnergy">0</b>
+      </div>
 
-  <div class="inventory-row">
-    <span>⚡ Energy</span>
-    <b id="invEnergy">0</b>
-  </div>
+      <div class="inventory-row">
+        <span>⭐ Points</span>
+        <b id="invPoints">0</b>
+      </div>
 
-  <div class="inventory-row">
-    <span>⭐ Points</span>
-    <b id="invPoints">0</b>
-  </div>
+      <div class="inventory-row">
+        <span>🥇 Gold</span>
+        <b id="invGold">0</b>
+      </div>
 
-  <div class="inventory-row">
-    <span>🥇 Gold</span>
-    <b id="invGold">0</b>
-  </div>
-
-  <div class="inventory-row">
-    <span>💎 Diamond</span>
-    <b id="invDiamond">0</b>
-  </div>
-</div>
+      <div class="inventory-row">
+        <span>💎 Diamond</span>
+        <b id="invDiamond">0</b>
+      </div>
+    </div>
 
     <a href="/" class="back-link">← Back to Game</a>
   </div>
 
   <script src="shop.js"></script>
 </body>
-  </html>
+</html>
