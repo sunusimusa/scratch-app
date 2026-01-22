@@ -538,7 +538,6 @@ async function buyItem(item) {
       return;
     }
 
-    // ✅ SYNC USER
     USER.energy  = data.energy;
     USER.balance = data.points;
     USER.gold    = data.gold;
@@ -552,4 +551,4 @@ async function buyItem(item) {
   }
 }
 
-
+window.buyItem = buyItem; // 🔥 MUHIMMI
