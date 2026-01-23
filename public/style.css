@@ -596,3 +596,39 @@ function buyWithDiamond() {
   color: #fff;
   font-weight: bold;
 }
+
+.promo-banner {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.promo-card {
+  background: #111;
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+}
+
+.promo-card img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.promo-card button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #22c55e;
+  color: #fff;
+  font-weight: bold;
+}
