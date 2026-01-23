@@ -314,6 +314,7 @@ async function checkBonusFromServer() {
       return;
     }
 
+    // 🔎 tambayi server
     const res = await fetch("/api/bonus/check", {
       method: "POST",
       credentials: "include"
@@ -322,14 +323,19 @@ async function checkBonusFromServer() {
     const data = await res.json();
     if (!data.bonusAvailable) return;
 
-    showBonusPopup(data.reward);
-    USER.energy = data.energy;
-    updateUI();
+    // 🎥 nuna promo OPTIONAL kafin bonus
+    showPromoThenBonus(() => {
+      // 🎁 bayan skip ko video ya kare
+      showBonusPopup(data.reward);
 
-    // 🔒 lock locally
-    localStorage.setItem("lastBonusTime", now);
+      USER.energy = data.energy;
+      updateUI();
 
-  } catch {
+      // 🔒 kulle bonus a client
+      localStorage.setItem("lastBonusTime", Date.now());
+    });
+
+  } catch (err) {
     console.log("Bonus skipped");
   }
 }
@@ -552,3 +558,39 @@ async function buyItem(item) {
 }
 
 window.buyItem = buyItem; // 🔥 MUHIMMI
+
+function showPromoThenBonus(claimBonusCallback) {
+  const modal = document.getElementById("promoModal");
+  const video = document.getElementById("promoVideo");
+  const skipBtn = document.getElementById("skipPromoBtn");
+  const skipText = document.getElementById("skipText");
+
+  let seconds = 5;
+  modal.classList.remove("hidden");
+
+  video.currentTime = 0;
+  video.play().catch(()=>{});
+
+  const timer = setInterval(() => {
+    seconds--;
+    skipText.innerText = `Skip in ${seconds}s`;
+
+    if (seconds <= 0) {
+      skipBtn.disabled = false;
+      skipText.innerText = "You can skip";
+      clearInterval(timer);
+    }
+  }, 1000);
+
+  skipBtn.onclick = () => {
+    video.pause();
+    modal.classList.add("hidden");
+    claimBonusCallback(); // 👈 BONUS YA TAFI
+  };
+
+  // idan video ya kare
+  video.onended = () => {
+    modal.classList.add("hidden");
+    claimBonusCallback();
+  };
+}
