@@ -559,75 +559,60 @@ async function buyItem(item) {
 
 window.buyItem = buyItem; // 🔥 MUHIMMI
 
+/* =====================================================
+   PROMO VIDEO → BONUS (CLEAN & SAFE)
+===================================================== */
 function showPromoThenBonus(claimBonusCallback) {
-  const modal = document.getElementById("promoModal");
-  const video = document.getElementById("promoVideo");
+  const modal   = document.getElementById("promoModal");
+  const video   = document.getElementById("promoVideo");
   const skipBtn = document.getElementById("skipPromoBtn");
-  const skipText = document.getElementById("skipText");
+  const skipTxt = document.getElementById("skipText");
 
-  let seconds = 5;
-  modal.classList.remove("hidden");
-
-  video.currentTime = 0;
-  video.play().catch(()=>{});
-
-  const timer = setInterval(() => {
-    seconds--;
-    skipText.innerText = `Skip in ${seconds}s`;
-
-    if (seconds <= 0) {
-      skipBtn.disabled = false;
-      skipText.innerText = "You can skip";
-      clearInterval(timer);
-    }
-  }, 1000);
-
-  skipBtn.onclick = () => {
-    video.pause();
-    modal.classList.add("hidden");
-    claimBonusCallback(); // 👈 BONUS YA TAFI
-  };
-
-  // idan video ya kare
-  video.onended = () => {
-    modal.classList.add("hidden");
+  if (!modal || !video || !skipBtn || !skipTxt) {
     claimBonusCallback();
-  };
-}
-
-function showPromoThenBonus(onDone) {
-  const banner = document.getElementById("promoBanner");
-  const skipBtn = document.getElementById("skipPromoBtn");
-
-  if (!banner || !skipBtn) {
-    onDone();
     return;
   }
 
-  banner.classList.remove("hidden");
+  let seconds = 5;
+  skipBtn.disabled = true;
+  skipTxt.innerText = `Skip in ${seconds}s`;
 
-  let closed = false;
+  modal.classList.remove("hidden");
+
+  video.currentTime = 0;
+  video.play().catch(() => {});
+
+  const timer = setInterval(() => {
+    seconds--;
+    skipTxt.innerText = `Skip in ${seconds}s`;
+
+    if (seconds <= 0) {
+      clearInterval(timer);
+      skipBtn.disabled = false;
+      skipTxt.innerText = "You can skip";
+    }
+  }, 1000);
 
   function closePromo() {
-    if (closed) return;
-    closed = true;
-    banner.classList.add("hidden");
-    onDone();
+    clearInterval(timer);
+    video.pause();
+    modal.classList.add("hidden");
+    claimBonusCallback(); // 🎁 BONUS
   }
 
-  // Skip button
   skipBtn.onclick = closePromo;
-
-  // Auto close after 5s
-  setTimeout(closePromo, 5000);
+  video.onended = closePromo;
 }
 
-document.getElementById("openMysteryBtn")?.addEventListener("click", () => {
-  showStatus("📺 Watching Ad...");
-  
-  // ⏳ simulate ad 5s (ko real ads daga baya)
-  setTimeout(openMysteryBox, 5000);
-});
+/* =====================================================
+   MYSTERY AD BOX (SIMULATED AD)
+===================================================== */
+document
+  .getElementById("openMysteryBtn")
+  ?.addEventListener("click", () => {
+    showStatus("📺 Watching Ad...");
+    setTimeout(openMysteryBox, 5000); // 5s ad
+  });
 
 async function openMysteryBox() {
   try {
@@ -648,21 +633,21 @@ async function openMysteryBox() {
       return;
     }
 
-    // sync
-    USER.energy = data.energy;
-    USER.balance = data.points;
-    USER.gold = data.gold;
-    USER.diamond = data.diamond;
+    // ✅ sync user
+    USER.energy   = data.energy;
+    USER.balance  = data.points;
+    USER.gold     = data.gold;
+    USER.diamond  = data.diamond;
     updateUI();
 
-    // show reward
-    if (data.reward.energy)
-      showStatus(`🎉 +${data.reward.energy} Energy`);
-    else if (data.reward.points)
-      showStatus(`🎉 +${data.reward.points} Points`);
-    else if (data.reward.gold)
+    // 🎁 show reward
+    if (data.reward?.energy)
+      showStatus(`⚡ +${data.reward.energy} Energy`);
+    else if (data.reward?.points)
+      showStatus(`⭐ +${data.reward.points} Points`);
+    else if (data.reward?.gold)
       showStatus(`🥇 +${data.reward.gold} Gold`);
-    else if (data.reward.diamond)
+    else if (data.reward?.diamond)
       showStatus(`💎 +${data.reward.diamond} Diamond`);
 
   } catch {
