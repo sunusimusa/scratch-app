@@ -16,9 +16,7 @@
 </head>
 <body>
 
-  <!-- =====================================================
-     BONUS POPUP (30 MIN SERVER BONUS)
-===================================================== -->
+<!-- ================= BONUS POPUP ================= -->
 <div id="bonusPopup" class="bonus-overlay hidden">
   <div class="bonus-card">
     <div class="bonus-title">🎁 Bonus Time!</div>
@@ -27,41 +25,36 @@
       Here is a small gift for you!
     </div>
     <div id="bonusReward">⚡ +3 Energy</div>
-    <button id="bonusBtn" class="bonus-btn">
-      Claim Bonus
-    </button>
+    <button id="bonusBtn" class="bonus-btn">Claim Bonus</button>
   </div>
 </div>
 
-  <div id="achievementPopup" class="hidden">
+<!-- ================= ACHIEVEMENT POPUP ================= -->
+<div id="achievementPopup" class="hidden">
   <h3 id="achTitle">🏆 Achievement Unlocked</h3>
   <p id="achReward"></p>
-  </div>
+</div>
 
-  <!-- ===== APP TITLE ===== -->
-  <h2 class="title">🎟️ Scratch Game</h2>
+<!-- ================= TITLE ================= -->
+<h2 class="title">🎟️ Scratch Game</h2>
 
-  <!-- ===== STATUS MESSAGE ===== -->
-  <p id="statusMsg" class="status hidden"></p>
+<p id="statusMsg" class="status hidden"></p>
 
-  <!-- ===== ENERGY BAR ===== -->
-  <div class="energy-bar">
-    <div id="energyFill"></div>
-  </div>
-  <p id="energyText">Energy: 0</p>
+<!-- ================= ENERGY ================= -->
+<div class="energy-bar">
+  <div id="energyFill"></div>
+</div>
+<p id="energyText">Energy: 0</p>
 
-  <div class="mystery-box-card">
+<!-- ================= MYSTERY AD BOX ================= -->
+<div class="mystery-box-card">
   <h3>🎁 Mystery Ad Box</h3>
   <p>Watch an ad to unlock a surprise!</p>
-
-  <button id="openMysteryBtn" class="primary-btn">
-    📺 Watch Ad & Open
-  </button>
-
+  <button id="openMysteryBtn" class="primary-btn">📺 Watch Ad & Open</button>
   <p id="mysteryCooldown" class="muted"></p>
-  </div>
+</div>
 
-  <!-- ===== LUCK METER ===== -->
+<!-- ================= LUCK METER ================= -->
 <div class="luck-box">
   <div class="luck-label">🍀 Luck Meter</div>
   <div class="luck-bar">
@@ -69,159 +62,96 @@
   </div>
   <div id="luckText">0%</div>
 </div>
-  
-  <!-- ===== LEVEL & POINTS ===== -->
-  <p id="levelText">Level: 1</p>
-  <p id="pointsText">Points: 0</p>
 
-  <!-- =====================================================
-       SCRATCH SECTION
-  ====================================================== -->
-  <div id="scratchSection" class="scratch-card hidden">
+<p id="levelText">Level: 1</p>
+<p id="pointsText">Points: 0</p>
 
-    <!-- 🎁 ABIN DA USER YA CI A CIKI -->
-    <div id="scratchReward" class="scratch-reward">
-      🎁 Scratch to Win
-    </div>
+<!-- ================= SCRATCH ================= -->
+<div id="scratchSection" class="scratch-card hidden">
+  <div id="scratchReward" class="scratch-reward">🎁 Scratch to Win</div>
+  <canvas id="scratchCanvas" width="260" height="160"></canvas>
+</div>
 
-    <!-- 🧤 SCRATCH COVER -->
-    <canvas id="scratchCanvas" width="260" height="160"></canvas>
+<button id="scratchBtn" class="primary-btn">🎟️ SCRATCH</button>
+<p id="cooldownText" class="hidden">⏳ Please wait...</p>
 
-  </div>
+<button id="dailyBtn" class="secondary-btn">🎁 Daily Free Energy</button>
+<a href="/shop.html" class="menu-link">🛒 Shop</a>
+<button id="adsBtn" class="secondary-btn">📺 Watch Ad → +Energy</button>
 
-  <!-- ===== SCRATCH BUTTON ===== -->
-  <button id="scratchBtn" class="primary-btn">
-    🎟️ SCRATCH
-  </button>
-
-  <!-- ===== COOLDOWN TEXT ===== -->
-  <p id="cooldownText" class="hidden">⏳ Please wait...</p>
-
-  <!-- ===== DAILY ENERGY ===== -->
-  <button id="dailyBtn" class="secondary-btn">
-    🎁 Daily Free Energy
-  </button>
-
-  <a href="/shop.html" class="menu-link">🛒 Shop</a>
-  
-
-  <!-- ===== WATCH ADS ===== -->
-  <button id="adsBtn" class="secondary-btn">
-    📺 Watch Ad → +Energy
-  </button>
-
-  <!-- ================= REFERRAL SECTION ================= -->
+<!-- ================= REFERRAL ================= -->
 <div class="referral-card">
   <h3>🎁 Invite Friends</h3>
-
   <p class="ref-desc">
-    Invite friends and earn:
-    <br />
     ⚡ <b>+25 Energy</b> · ⭐ <b>+125 Points</b>
   </p>
 
-
-  <!-- ===== YOUR REFERRAL CODE ===== -->
   <div class="ref-box">
     <p class="ref-title">Your Referral Code</p>
-
     <div class="ref-code-row">
-      <span id="referralCode"
-   class="ref-code">----</span>
-      <button class="copy-btn" 
-   onclick="copyReferral()">Copy</button>
+      <span id="referralCode" class="ref-code">----</span>
+      <button class="copy-btn" onclick="copyReferral()">Copy</button>
     </div>
   </div>
 
-  <!-- ===== ENTER REFERRAL CODE ===== -->
-  <input
-    type="text"
-    id="refInput"
-    placeholder="Enter referral code"
-    class="ref-input"
-  />
-
-  <button class="primary-btn" 
-  onclick="claimReferralCode()">
-    🎉 Claim Referral
-  </button>
+  <input id="refInput" class="ref-input" placeholder="Enter referral code" />
+  <button class="primary-btn" onclick="claimReferralCode()">🎉 Claim Referral</button>
 </div>
 
-  <section class="achievements-section">
+<!-- ================= ACHIEVEMENTS ================= -->
+<section class="achievements-section">
   <h2>🏆 Achievements</h2>
-  <div id="achievementsList"></div>
-  </section>
-
-  <div id="promoModal" class="promo-modal hidden">
-  <div class="promo-box">
-    <h3>🎁 Bonus Ready</h3>
-
-    <!-- VIDEO NA KA -->
-    <video id="promoVideo" width="100%" playsinline>
-      <source src="/promo.mp4" type="video/mp4">
-    </video>
-
-    <p id="skipText">Skip in 5s</p>
-
-    <button id="skipPromoBtn" disabled>Skip</button>
-  </div>
-  </div>
-
-  <div id="promoBanner" class="promo-banner hidden">
-  <div class="promo-card">
-    <img src="/promo/banner.png" alt="Promo" />
-    <p>
-      🎉 Thanks for playing Scratch Game!  
-      Enjoy this small gift from us 🎁
-    </p>
-
-    <button id="skipPromoBtn">Skip</button>
-  </div>
-  </div>
-
-  <!-- ================= ACHIEVEMENTS ================= -->
-
   <div id="achievementsList" class="achievements-list">
     <p class="loading-text">Loading achievements...</p>
   </div>
+</section>
+
+<!-- ================= PROMO VIDEO ================= -->
+<div id="promoModal" class="promo-modal hidden">
+  <div class="promo-box">
+    <h3>🎁 Bonus Ready</h3>
+    <video id="promoVideo" width="100%" playsinline>
+      <source src="/promo.mp4" type="video/mp4">
+    </video>
+    <p id="skipText">Skip in 5s</p>
+    <button id="skipPromoVideoBtn" disabled>Skip</button>
+  </div>
 </div>
 
-  <div class="disclaimer">
+<!-- ================= PROMO BANNER ================= -->
+<div id="promoBanner" class="promo-banner hidden">
+  <div class="promo-card">
+    <img src="/promo/banner.png" alt="Promo" />
+    <p>🎉 Thanks for playing Scratch Game!</p>
+    <button id="skipPromoBannerBtn">Skip</button>
+  </div>
+</div>
+
+<!-- ================= DISCLAIMER ================= -->
+<div class="disclaimer">
   <p>
     ⚠️ <b>Disclaimer:</b><br>
-    This app does not offer real money or cash withdrawal.<br>
-    All rewards (Energy, Points, Gold, Diamond) are virtual and for entertainment purposes only.
+    No real money or cash withdrawal.<br>
+    All rewards are virtual and for entertainment only.
   </p>
-  </div>
+</div>
 
-  <!-- ===== FOOTER ===== -->
-  <div class="footer-links">
-  <a href="/about.html">ℹ️ About</a>
-  ·
-  <a href="/privacy.html">Privacy</a>
-  ·
+<!-- ================= FOOTER ================= -->
+<div class="footer-links">
+  <a href="/about.html">About</a> ·
+  <a href="/privacy.html">Privacy</a> ·
   <a href="/terms.html">Terms</a>
-  </div>
+</div>
 
-  <!-- =====================================================
-       SERVICE WORKER REGISTER (MUHIMMI GA SOUNDS)
-  ====================================================== -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/service-worker.js")
-        .then(() => console.log("✅ Service Worker Ready"))
-        .catch(err => console.error("❌ SW Error", err));
-    }
-  </script>
+<!-- ================= SERVICE WORKER ================= -->
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js");
+  }
+</script>
 
-  <!-- =====================================================
-       SCRIPTS (ORDER MUHIMMI)
-       script.js = scratch + sound engine
-       index.js  = game logic
-  ====================================================== -->
-  <script src="/script.js"></script>
-  <script src="/index.js"></script>
-  <link rel="manifest" href="/manifest.json">
+<script src="/script.js"></script>
+<script src="/index.js"></script>
 
 </body>
 </html>
