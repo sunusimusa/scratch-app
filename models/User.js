@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
   level:  { type: Number, default: 1 },
   streak: { type: Number, default: 0 },
 lastStreakAt: { type: Number, default: 0 },
+  lastMysteryAt: { type: Number },
 
   // 🍀 Luck
   luck: { type: Number, default: 0 },
