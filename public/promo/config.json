@@ -1,1 +1,5 @@
-
+{
+  "enabled": true,
+  "showBanner": true,
+  "showVideo": false
+}
