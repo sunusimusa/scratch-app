@@ -621,3 +621,51 @@ function showPromoThenBonus(onDone) {
   // Auto close after 5s
   setTimeout(closePromo, 5000);
 }
+
+document.getElementById("openMysteryBtn")?.addEventListener("click", () => {
+  showStatus("📺 Watching Ad...");
+  
+  // ⏳ simulate ad 5s (ko real ads daga baya)
+  setTimeout(openMysteryBox, 5000);
+});
+
+async function openMysteryBox() {
+  try {
+    const res = await fetch("/api/mystery/open", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (data.error === "COOLDOWN") {
+      showStatus("⏳ Come back later for another box");
+      return;
+    }
+
+    if (data.error) {
+      showStatus("❌ Unable to open box");
+      return;
+    }
+
+    // sync
+    USER.energy = data.energy;
+    USER.balance = data.points;
+    USER.gold = data.gold;
+    USER.diamond = data.diamond;
+    updateUI();
+
+    // show reward
+    if (data.reward.energy)
+      showStatus(`🎉 +${data.reward.energy} Energy`);
+    else if (data.reward.points)
+      showStatus(`🎉 +${data.reward.points} Points`);
+    else if (data.reward.gold)
+      showStatus(`🥇 +${data.reward.gold} Gold`);
+    else if (data.reward.diamond)
+      showStatus(`💎 +${data.reward.diamond} Diamond`);
+
+  } catch {
+    showStatus("❌ Network error");
+  }
+}
