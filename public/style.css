@@ -632,3 +632,23 @@ function buyWithDiamond() {
   color: #fff;
   font-weight: bold;
 }
+
+.mystery-box-card {
+  background: #1c1c28;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 16px auto;
+  width: 260px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.mystery-box-card h3 {
+  color: #ffd700;
+}
+
+.muted {
+  font-size: 12px;
+  color: #9e9e9e;
+  margin-top: 6px;
+}
