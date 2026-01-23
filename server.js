@@ -647,6 +647,60 @@ app.post("/api/shop/buy", async (req, res) => {
   }
 });
 
+app.post("/api/mystery/open", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.json({ error: "NO_USER" });
+
+    const NOW = Date.now();
+    const COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours
+
+    if (user.lastMysteryAt && NOW - user.lastMysteryAt < COOLDOWN) {
+      return res.json({
+        error: "COOLDOWN",
+        nextIn: COOLDOWN - (NOW - user.lastMysteryAt)
+      });
+    }
+
+    // 🎲 RANDOM REWARD
+    const roll = Math.random() * 100;
+    let reward = { energy: 0, points: 0, gold: 0, diamond: 0 };
+
+    if (roll < 60) {
+      reward.energy = 10;
+      user.energy += 10;
+    } else if (roll < 85) {
+      reward.points = 20;
+      user.points += 20;
+    } else if (roll < 97) {
+      reward.gold = 1;
+      user.gold = (user.gold || 0) + 1;
+    } else {
+      reward.diamond = 1;
+      user.diamond = (user.diamond || 0) + 1;
+    }
+
+    user.lastMysteryAt = NOW;
+    await user.save();
+
+    res.json({
+      success: true,
+      reward,
+      energy: user.energy,
+      points: user.points,
+      gold: user.gold,
+      diamond: user.diamond
+    });
+
+  } catch (err) {
+    console.error("MYSTERY ERROR:", err);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
