@@ -594,3 +594,30 @@ function showPromoThenBonus(claimBonusCallback) {
     claimBonusCallback();
   };
 }
+
+function showPromoThenBonus(onDone) {
+  const banner = document.getElementById("promoBanner");
+  const skipBtn = document.getElementById("skipPromoBtn");
+
+  if (!banner || !skipBtn) {
+    onDone();
+    return;
+  }
+
+  banner.classList.remove("hidden");
+
+  let closed = false;
+
+  function closePromo() {
+    if (closed) return;
+    closed = true;
+    banner.classList.add("hidden");
+    onDone();
+  }
+
+  // Skip button
+  skipBtn.onclick = closePromo;
+
+  // Auto close after 5s
+  setTimeout(closePromo, 5000);
+}
