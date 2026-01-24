@@ -11,7 +11,7 @@ function showStatus(msg) {
   if (statusText) statusText.innerText = msg;
 }
 
-/* ===== LOAD USER DATA ===== */
+/* ================= LOAD USER ================= */
 async function loadUser() {
   try {
     const res = await fetch("/api/user", {
@@ -20,21 +20,24 @@ async function loadUser() {
     });
 
     const data = await res.json();
-    if (!data.success) return;
+    if (!data || !data.success) {
+      showStatus("❌ Unable to load user");
+      return;
+    }
 
-    USER.energy  = data.energy ?? 0;
-    USER.balance = data.points ?? 0;
-    USER.gold    = data.gold ?? 0;
-    USER.diamond = data.diamond ?? 0;
+    USER.energy  = Number(data.energy)  || 0;
+    USER.balance = Number(data.points)  || 0;
+    USER.gold    = Number(data.gold)    || 0;
+    USER.diamond = Number(data.diamond) || 0;
 
     updateInventory();
 
   } catch {
-    showStatus("❌ Failed to load user");
+    showStatus("❌ Network error");
   }
 }
 
-/* ===== UPDATE INVENTORY ===== */
+/* ================= UPDATE INVENTORY ================= */
 function updateInventory() {
   document.getElementById("invEnergy").innerText  = USER.energy;
   document.getElementById("invPoints").innerText  = USER.balance;
@@ -42,7 +45,7 @@ function updateInventory() {
   document.getElementById("invDiamond").innerText = USER.diamond;
 }
 
-/* ===== BUY ITEM ===== */
+/* ================= BUY ITEM ================= */
 async function buyItem(item) {
   showStatus("🛒 Processing purchase...");
 
@@ -57,14 +60,18 @@ async function buyItem(item) {
     const data = await res.json();
 
     if (data.error) {
-      if (data.error === "NOT_ENOUGH_POINTS") showStatus("❌ Babu isassun Points");
-      else if (data.error === "NOT_ENOUGH_GOLD") showStatus("❌ Babu isasshen Gold");
-      else if (data.error === "NOT_ENOUGH_DIAMOND") showStatus("❌ Babu isasshen Diamond");
-      else showStatus("❌ Purchase failed");
+      if (data.error === "NOT_ENOUGH_POINTS")
+        showStatus("❌ Babu isassun Points");
+      else if (data.error === "NOT_ENOUGH_GOLD")
+        showStatus("❌ Babu isasshen Gold");
+      else if (data.error === "NOT_ENOUGH_DIAMOND")
+        showStatus("❌ Babu isasshen Diamond");
+      else
+        showStatus("❌ Purchase failed");
       return;
     }
 
-    // ✅ SYNC
+    // ✅ SYNC FROM SERVER
     USER.energy  = data.energy;
     USER.balance = data.points;
     USER.gold    = data.gold;
@@ -78,8 +85,8 @@ async function buyItem(item) {
   }
 }
 
-/* 🔥 MUHIMMI: expose function */
+/* 🔥 expose */
 window.buyItem = buyItem;
 
-/* START */
+/* ================= START ================= */
 loadUser();
