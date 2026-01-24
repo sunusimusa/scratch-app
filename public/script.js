@@ -37,7 +37,7 @@ function initScratchCard() {
 window.initScratchCard = initScratchCard;
 
 /* =====================================================
-   30 MIN BONUS CHECK (CLIENT SIDE)
+   BONUS CHECK (30 MIN – SERVER SAFE)
 ===================================================== */
 let bonusTimerStarted = false;
 
@@ -45,14 +45,10 @@ function startBonusTimer() {
   if (bonusTimerStarted) return;
   bonusTimerStarted = true;
 
-  // check once when app opens
   checkBonusFromServer();
-
-  // then every 30 minutes
   setInterval(checkBonusFromServer, 30 * 60 * 1000);
 }
 
-// run once
 window.addEventListener("load", startBonusTimer);
 
 /* ================= DRAW ================= */
@@ -91,6 +87,10 @@ async function finish() {
   if (window.claimScratchReward) {
     await window.claimScratchReward();
   }
+
+  // 🔄 reset for next scratch
+  scratched = false;
+  ready = false;
 }
 
 /* ================= MOUSE ================= */
@@ -126,35 +126,21 @@ canvas.addEventListener("touchmove", e => {
   check();
 }, { passive: false });
 
-const bonusPopup = document.getElementById("bonusPopup");
+/* =====================================================
+   BONUS POPUP (DISPLAY ONLY)
+===================================================== */
+const bonusPopup  = document.getElementById("bonusPopup");
 const bonusReward = document.getElementById("bonusReward");
-const bonusBtn = document.getElementById("bonusBtn");
+const bonusBtn    = document.getElementById("bonusBtn");
 
 function showBonusPopup(reward) {
+  if (!bonusPopup) return;
   bonusReward.innerText = `⚡ +${reward} Energy`;
   bonusPopup.classList.remove("hidden");
 }
 
 if (bonusBtn) {
-  bonusBtn.onclick = async () => {
-    try {
-      const res = await fetch("/api/bonus", {
-        method: "POST",
-        credentials: "include"
-      });
-      const data = await res.json();
-
-      if (data.error) {
-        bonusPopup.classList.add("hidden");
-        return;
-      }
-
-      USER.energy = data.energy;
-      updateUI();
-      bonusPopup.classList.add("hidden");
-
-    } catch {
-      bonusPopup.classList.add("hidden");
-    }
+  bonusBtn.onclick = () => {
+    bonusPopup.classList.add("hidden");
   };
-}
+                        }
