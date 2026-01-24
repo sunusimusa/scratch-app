@@ -416,34 +416,6 @@ async function claimScratchReward() {
 /* expose */
 window.claimScratchReward = claimScratchReward;
 
-async function claimReferral(code) {
-  showStatus("🎁 Claiming referral...");
-
-  try {
-    const res = await fetch("/api/referral/claim", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ code })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      showStatus("❌ Invalid or used code");
-      return;
-    }
-
-    USER.energy = data.userEnergy;
-    updateUI();
-
-    showStatus("🎉 Referral bonus claimed!");
-
-  } catch {
-    showStatus("❌ Network error");
-  }
-}
-
 async function checkDailyStreak() {
   try {
     const res = await fetch("/api/streak/check", {
