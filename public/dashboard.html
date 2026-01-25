@@ -4,56 +4,41 @@
   <meta charset="UTF-8" />
   <title>Dashboard • Scratch Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#ffd700" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="dark-bg">
 
   <div class="container">
-
     <h2 class="section-title">📊 Dashboard</h2>
 
     <div class="inventory-card">
-      <div class="inventory-row">
-        <span>⚡ Energy</span>
-        <b id="dEnergy">0</b>
-      </div>
-
-      <div class="inventory-row">
-        <span>⭐ Points</span>
-        <b id="dPoints">0</b>
-      </div>
-
-      <div class="inventory-row">
-        <span>🥇 Gold</span>
-        <b id="dGold">0</b>
-      </div>
-
-      <div class="inventory-row">
-        <span>💎 Diamond</span>
-        <b id="dDiamond">0</b>
-      </div>
-
-      <div class="inventory-row">
-        <span>📈 Level</span>
-        <b id="dLevel">1</b>
-      </div>
-
-      <div class="inventory-row">
-        <span>🔥 Streak</span>
-        <b id="dStreak">0</b>
-      </div>
-
-      <div class="inventory-row">
-        <span>🏆 Achievements</span>
-        <b id="dAchievements">0</b>
-      </div>
+      <div class="inventory-row"><span>⚡ Energy</span><b id="dEnergy">0</b></div>
+      <div class="inventory-row"><span>⭐ Points</span><b id="dPoints">0</b></div>
+      <div class="inventory-row"><span>🥇 Gold</span><b id="dGold">0</b></div>
+      <div class="inventory-row"><span>💎 Diamond</span><b id="dDiamond">0</b></div>
+      <div class="inventory-row"><span>📈 Level</span><b id="dLevel">1</b></div>
+      <div class="inventory-row"><span>🔥 Streak</span><b id="dStreak">0</b></div>
+      <div class="inventory-row"><span>🏆 Achievements</span><b id="dAch">0</b></div>
     </div>
 
-    <p id="dashStatus" class="status-text"></p>
+    <!-- PROGRESS -->
+    <div class="progress-card">
+      <div class="p-title">Level Progress</div>
+      <div class="p-bar"><div id="levelFill"></div></div>
+      <div class="p-text" id="levelPct">0%</div>
 
-    <a href="/" class="back-link">⬅️ Back to Game</a>
+      <div class="p-title">Luck</div>
+      <div class="p-bar"><div id="luckFill"></div></div>
+      <div class="p-text" id="luckPct">0%</div>
+    </div>
 
+    <!-- META -->
+    <div class="meta-card">
+      <div class="meta-row"><span>🕒 Last Active</span><b id="lastActive">—</b></div>
+      <div class="meta-row"><span>📅 Account Age</span><b id="ageDays">—</b></div>
+    </div>
+
+    <a href="/" class="back-link">← Back to Game</a>
   </div>
 
   <script src="/dashboard.js"></script>
