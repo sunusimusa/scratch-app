@@ -734,6 +734,35 @@ app.post("/api/auth/login", async (req, res) => {
   res.json({ success: true });
 });
 
+// server.js
+app.get("/api/dashboard", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.status(401).json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.status(404).json({ error: "NO_USER" });
+
+    const achievementsCount = user.achievements?.length || 0;
+
+    res.json({
+      success: true,
+      energy: user.energy,
+      points: user.points,
+      gold: user.gold,
+      diamond: user.diamond,
+      level: user.level,
+      streak: user.streak || 0,
+      luck: user.luck || 0,
+      achievements: achievementsCount,
+      lastActive: user.updatedAt,
+      createdAt: user.createdAt
+    });
+  } catch {
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ACHIEVEMENT HELPER ================= */
 function unlockAchievement(user, key) {
   if (!user.achievements.includes(key)) {
