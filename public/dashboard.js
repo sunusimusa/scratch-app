@@ -15,61 +15,46 @@ function setStatus(msg) {
 }
 
 /* ================= LOAD USER ================= */
-async function loadDashboard() {
+(async function loadDashboard() {
   try {
-    const res = await fetch("/api/user", {
-      method: "POST",
-      credentials: "include"
-    });
+    const res = await fetch("/api/dashboard", { credentials: "include" });
+    const d = await res.json();
+    if (!d.success) throw 1;
 
-    const data = await res.json();
-    if (!data.success) {
-      setStatus("❌ Unable to load user");
-      return;
-    }
+    // BASIC
+    set("dEnergy", d.energy);
+    set("dPoints", d.points);
+    set("dGold", d.gold);
+    set("dDiamond", d.diamond);
+    set("dLevel", d.level);
+    set("dStreak", d.streak);
+    set("dAch", d.achievements);
 
-    DASH.energy = data.energy ?? 0;
-    DASH.points = data.points ?? 0;
-    DASH.level  = data.level  ?? 1;
+    // PROGRESS
+    const levelPct = Math.min(100, ((d.points % 100) / 100) * 100);
+    bar("levelFill", levelPct);
+    text("levelPct", Math.round(levelPct) + "%");
 
-    updateDashboard();
-    loadAchievementsCount();
+    const luckPct = Math.min(100, d.luck || 0);
+    bar("luckFill", luckPct);
+    text("luckPct", Math.round(luckPct) + "%");
+
+    // META
+    text("lastActive", new Date(d.lastActive).toLocaleString());
+    const days = Math.max(
+      0,
+      Math.floor((Date.now() - new Date(d.createdAt).getTime()) / (24*60*60*1000))
+    );
+    text("ageDays", days + " days");
 
   } catch {
-    setStatus("❌ Network error");
+    alert("Failed to load dashboard");
   }
-}
 
-/* ================= LOAD ACHIEVEMENTS ================= */
-async function loadAchievementsCount() {
-  try {
-    const res = await fetch("/api/achievements", {
-      credentials: "include"
-    });
-
-    const data = await res.json();
-    if (!data.success) return;
-
-    const unlocked = data.achievements.filter(a => a.unlocked);
-    DASH.achievements = unlocked.length;
-
-    updateDashboard();
-
-  } catch {
-    // silent
+  function set(id, v){ const el=document.getElementById(id); if(el) el.innerText=v; }
+  function text(id, v){ set(id, v); }
+  function bar(id, pct){
+    const el=document.getElementById(id);
+    if(el) el.style.width = pct + "%";
   }
-}
-
-/* ================= UPDATE UI ================= */
-function updateDashboard() {
-  document.getElementById("dEnergy").innerText       = DASH.energy;
-  document.getElementById("dPoints").innerText       = DASH.points;
-  document.getElementById("dGold").innerText         = DASH.gold;
-  document.getElementById("dDiamond").innerText      = DASH.diamond;
-  document.getElementById("dLevel").innerText        = DASH.level;
-  document.getElementById("dStreak").innerText       = DASH.streak;
-  document.getElementById("dAchievements").innerText = DASH.achievements;
-}
-
-/* ================= START ================= */
-loadDashboard();
+})();
