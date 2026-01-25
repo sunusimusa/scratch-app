@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard • Scratch Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffd700" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="dark-bg">
 
+  <div class="container">
+
+    <h2 class="section-title">📊 Dashboard</h2>
+
+    <div class="inventory-card">
+      <div class="inventory-row">
+        <span>⚡ Energy</span>
+        <b id="dEnergy">0</b>
+      </div>
+
+      <div class="inventory-row">
+        <span>⭐ Points</span>
+        <b id="dPoints">0</b>
+      </div>
+
+      <div class="inventory-row">
+        <span>🥇 Gold</span>
+        <b id="dGold">0</b>
+      </div>
+
+      <div class="inventory-row">
+        <span>💎 Diamond</span>
+        <b id="dDiamond">0</b>
+      </div>
+
+      <div class="inventory-row">
+        <span>📈 Level</span>
+        <b id="dLevel">1</b>
+      </div>
+
+      <div class="inventory-row">
+        <span>🔥 Streak</span>
+        <b id="dStreak">0</b>
+      </div>
+
+      <div class="inventory-row">
+        <span>🏆 Achievements</span>
+        <b id="dAchievements">0</b>
+      </div>
+    </div>
+
+    <p id="dashStatus" class="status-text"></p>
+
+    <a href="/" class="back-link">⬅️ Back to Game</a>
+
+  </div>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>
