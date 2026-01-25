@@ -1,60 +1,66 @@
-let DASH = {
-  energy: 0,
-  points: 0,
-  gold: 0,
-  diamond: 0,
-  level: 1,
-  streak: 0,
-  achievements: 0
-};
+/* =====================================================
+   DASHBOARD.JS – READ ONLY (PLAY STORE SAFE)
+===================================================== */
 
-const statusEl = document.getElementById("dashStatus");
+document.addEventListener("DOMContentLoaded", loadDashboard);
 
-function setStatus(msg) {
-  if (statusEl) statusEl.innerText = msg;
+async function loadDashboard() {
+  try {
+    const res = await fetch("/api/dashboard", {
+      credentials: "include"
+    });
+
+    const d = await res.json();
+    if (!d || !d.success) throw new Error("Invalid response");
+
+    /* ===== BASIC STATS ===== */
+    setText("dEnergy", d.energy);
+    setText("dPoints", d.points);
+    setText("dGold", d.gold);
+    setText("dDiamond", d.diamond);
+    setText("dLevel", d.level);
+    setText("dStreak", d.streak);
+    setText("dAch", d.achievements);
+
+    /* ===== LEVEL PROGRESS ===== */
+    const levelPct = Math.min(100, ((d.points % 100) / 100) * 100);
+    setBar("levelFill", levelPct);
+    setText("levelPct", Math.round(levelPct) + "%");
+
+    /* ===== LUCK ===== */
+    const luckPct = Math.min(100, Number(d.luck) || 0);
+    setBar("luckFill", luckPct);
+    setText("luckPct", Math.round(luckPct) + "%");
+
+    /* ===== META ===== */
+    setText(
+      "lastActive",
+      d.lastActive ? new Date(d.lastActive).toLocaleString() : "—"
+    );
+
+    if (d.createdAt) {
+      const days =
+        Math.floor(
+          (Date.now() - new Date(d.createdAt).getTime()) /
+          (24 * 60 * 60 * 1000)
+        ) || 0;
+
+      setText("ageDays", `${days} days`);
+    }
+
+  } catch (err) {
+    console.error("Dashboard error:", err);
+    alert("❌ Failed to load dashboard");
+  }
 }
 
-/* ================= LOAD USER ================= */
-(async function loadDashboard() {
-  try {
-    const res = await fetch("/api/dashboard", { credentials: "include" });
-    const d = await res.json();
-    if (!d.success) throw 1;
+/* ================= HELPERS ================= */
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = value ?? 0;
+}
 
-    // BASIC
-    set("dEnergy", d.energy);
-    set("dPoints", d.points);
-    set("dGold", d.gold);
-    set("dDiamond", d.diamond);
-    set("dLevel", d.level);
-    set("dStreak", d.streak);
-    set("dAch", d.achievements);
-
-    // PROGRESS
-    const levelPct = Math.min(100, ((d.points % 100) / 100) * 100);
-    bar("levelFill", levelPct);
-    text("levelPct", Math.round(levelPct) + "%");
-
-    const luckPct = Math.min(100, d.luck || 0);
-    bar("luckFill", luckPct);
-    text("luckPct", Math.round(luckPct) + "%");
-
-    // META
-    text("lastActive", new Date(d.lastActive).toLocaleString());
-    const days = Math.max(
-      0,
-      Math.floor((Date.now() - new Date(d.createdAt).getTime()) / (24*60*60*1000))
-    );
-    text("ageDays", days + " days");
-
-  } catch {
-    alert("Failed to load dashboard");
-  }
-
-  function set(id, v){ const el=document.getElementById(id); if(el) el.innerText=v; }
-  function text(id, v){ set(id, v); }
-  function bar(id, pct){
-    const el=document.getElementById(id);
-    if(el) el.style.width = pct + "%";
-  }
-})();
+function setBar(id, percent) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = percent + "%";
+}
