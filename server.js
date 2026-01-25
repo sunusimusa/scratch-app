@@ -6,6 +6,7 @@ import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 import User from "./models/User.js";
 
@@ -699,6 +700,38 @@ app.post("/api/mystery/open", async (req, res) => {
     console.error("MYSTERY ERROR:", err);
     res.status(500).json({ error: "SERVER_ERROR" });
   }
+});
+
+/* REGISTER */
+app.post("/api/auth/register", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return res.json({ message: "Missing fields" });
+
+  const hash = await bcrypt.hash(password, 10);
+
+  await User.create({
+    email,
+    password: hash,
+    energy: 0,
+    points: 0
+  });
+
+  res.json({ message: "Account created successfully" });
+});
+
+/* LOGIN */
+app.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return res.json({ success: false });
+
+  const ok = await bcrypt.compare(password, user.password);
+  if (!ok) return res.json({ success: false });
+
+  res.json({ success: true });
 });
 
 /* ================= ACHIEVEMENT HELPER ================= */
