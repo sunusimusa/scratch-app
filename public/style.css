@@ -453,17 +453,10 @@ button:disabled {
   font-size: 22px;
 }
 
-function buyWithPoints() {
-  alert("🪙 Buy with Points (server zai zo daga baya)");
+.container {
+  max-width: 360px;
+  margin: 0 auto;
 }
-
-function buyWithGold() {
-  alert("🥇 Buy with Gold (server zai zo daga baya)");
-}
-
-function buyWithDiamond() {
-  alert("💎 Buy with Diamond (server zai zo daga baya)");
-  }
 
 /* ================= INVENTORY ================= */
 .inventory-card {
