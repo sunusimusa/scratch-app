@@ -42,3 +42,8 @@ footer {
   margin-top:30px;
   font-size:14px;
 }
+
+#wheel {
+  font-size: 64px;
+  transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+}
