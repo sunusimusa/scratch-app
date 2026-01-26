@@ -124,6 +124,53 @@ app.post("/api/scratch", async (req, res) => {
   });
 });
 
+/* ================= DAILY SPIN ================= */
+app.post("/api/spin", async (req, res) => {
+  try {
+    const sid = req.cookies.sid;
+    if (!sid) return res.json({ error: "NO_SESSION" });
+
+    const user = await User.findOne({ sessionId: sid });
+    if (!user) return res.json({ error: "NO_USER" });
+
+    const todayStr = today();
+
+    if (user.lastSpinDate === todayStr) {
+      return res.json({ error: "ALREADY_SPUN" });
+    }
+
+    // 🎲 RANDOM REWARD
+    const roll = Math.random() * 100;
+    let reward = { energy: 0, points: 0 };
+
+    if (roll < 50) {
+      reward.energy = 5;
+      user.energy += 5;
+    } else if (roll < 85) {
+      reward.energy = 10;
+      user.energy += 10;
+    } else {
+      reward.points = 20;
+      user.points += 20;
+    }
+
+    user.level = calcLevel(user.points);
+    user.lastSpinDate = todayStr;
+    await user.save();
+
+    res.json({
+      success: true,
+      reward,
+      energy: user.energy,
+      points: user.points,
+      level: user.level
+    });
+
+  } catch (e) {
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 /* ================= ROOT ================= */
 app.get("/", (_, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
