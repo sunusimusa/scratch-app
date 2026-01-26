@@ -780,3 +780,23 @@ button:disabled {
 .wheel.spin {
   transform: rotate(1440deg);
 }
+
+.menu-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.main-game-card,
+.spin-card {
+  box-shadow: 0 12px 30px rgba(0,0,0,.45);
+}
+
+.main-game-card h3,
+.spin-card h3 {
+  margin-top: 0;
+  color: var(--gold);
+  }
+
