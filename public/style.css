@@ -1,61 +1,44 @@
 body {
-  margin: 0;
-  padding: 20px;
-  background: radial-gradient(circle at top, #1a1400, #000);
-  color: #fff;
-  font-family: system-ui, sans-serif;
-  text-align: center;
-}
-
-.title {
-  color: #ffd700;
+  background:#0b0b12;
+  color:#fff;
+  font-family:sans-serif;
+  text-align:center;
+  padding:20px;
 }
 
 button {
-  width: 260px;
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  font-weight: bold;
-  margin: 10px auto;
-  cursor: pointer;
+  width:260px;
+  padding:14px;
+  margin:10px auto;
+  border:none;
+  border-radius:14px;
+  font-weight:bold;
 }
 
-.primary-btn {
-  background: linear-gradient(135deg, #ffd700, #ff9800);
-  color: #000;
-}
-
-.secondary-btn {
-  background: #222;
-  color: #fff;
-}
-
-.energy-bar {
-  width: 260px;
-  height: 10px;
-  background: #222;
-  border-radius: 999px;
-  margin: 10px auto;
-  overflow: hidden;
+.bar {
+  width:260px;
+  height:10px;
+  background:#222;
+  margin:10px auto;
+  border-radius:10px;
 }
 
 #energyFill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #ffd700, #ff9800);
+  height:100%;
+  width:0%;
+  background:gold;
 }
 
-.status {
-  color: #ffd700;
-  min-height: 18px;
+.spin #wheel {
+  font-size:60px;
+  transition:transform 3s ease;
 }
 
-.hidden {
-  display: none;
+.spin.spin #wheel {
+  transform:rotate(1440deg);
 }
 
-.wheel.spin {
-  transform: rotate(1440deg);
-  transition: transform 3.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+footer {
+  margin-top:30px;
+  font-size:14px;
 }
