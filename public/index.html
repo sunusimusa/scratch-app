@@ -1,114 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Scratch Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- THEME -->
-  <meta name="theme-color" content="#ffd700" />
-
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json" />
-
-  <!-- STYLE -->
-  <link rel="stylesheet" href="/style.css" />
-</head>
 <body>
 
-  <a href="/dashboard.html" class="menu-link">📊 Dashboard</a>
+<!-- ================= TOP BAR ================= -->
+<a href="/dashboard.html" class="menu-link">📊 Dashboard</a>
 
-  <div class="spin-card">
-  <h3>🎡 Daily Spin</h3>
-
-  <!-- ⚠️ MUN CIRE HAUSA ANAN -->
-  <p class="muted">Spin once per day to earn rewards</p>
-
-  <div class="wheel-box">
-    <div id="spinWheel" class="wheel">
-      🎁
-    </div>
-  </div>
-
-  <button id="spinBtn" class="primary-btn">
-    🔄 Spin Now
-  </button>
-
-  <p id="spinText" class="muted"></p>
-  </div>
-
-<!-- ================= BONUS POPUP ================= -->
-<div id="bonusPopup" class="bonus-overlay hidden">
-  <div class="bonus-card">
-    <div class="bonus-title">🎁 Bonus Time!</div>
-    <div class="bonus-text">
-      Thanks for enjoying our Scratch Game 💛  
-      Here is a small gift for you!
-    </div>
-    <div id="bonusReward">⚡ +3 Energy</div>
-    <button id="bonusBtn" class="bonus-btn">Claim Bonus</button>
-  </div>
-</div>
-
-<!-- ================= ACHIEVEMENT POPUP ================= -->
-<div id="achievementPopup" class="hidden">
-  <h3 id="achTitle">🏆 Achievement Unlocked</h3>
-  <p id="achReward"></p>
-</div>
-
-<!-- ================= TITLE ================= -->
 <h2 class="title">🎟️ Scratch Game</h2>
-
 <p id="statusMsg" class="status hidden"></p>
 
-<!-- ================= ENERGY ================= -->
-<div class="energy-bar">
-  <div id="energyFill"></div>
-</div>
-<p id="energyText">Energy: 0</p>
-
-<!-- ================= MYSTERY AD BOX ================= -->
-<div class="mystery-box-card">
-  <h3>🎁 Mystery Ad Box</h3>
-  <p>Watch an ad to unlock a surprise!</p>
-  <button id="openMysteryBtn" class="primary-btn">📺 Watch Ad & Open</button>
-  <p id="mysteryCooldown" class="muted"></p>
-</div>
-
-<!-- ================= LUCK METER ================= -->
-<div class="luck-box">
-  <div class="luck-label">🍀 Luck Meter</div>
-  <div class="luck-bar">
-    <div id="luckFill"></div>
+<!-- ================= PLAYER STATUS ================= -->
+<div class="player-stats">
+  <div class="energy-bar">
+    <div id="energyFill"></div>
   </div>
-  <div id="luckText">0%</div>
+  <p id="energyText">Energy: 0</p>
+
+  <p id="levelText">Level: 1</p>
+  <p id="pointsText">Points: 0</p>
+
+  <!-- LUCK -->
+  <div class="luck-box">
+    <div class="luck-label">🍀 Luck Meter</div>
+    <div class="luck-bar">
+      <div id="luckFill"></div>
+    </div>
+    <div id="luckText">0%</div>
+  </div>
 </div>
 
-<p id="levelText">Level: 1</p>
-<p id="pointsText">Points: 0</p>
+<!-- ================= MAIN GAME (SCRATCH) ================= -->
+<div class="main-game-card">
+  <h3>🎟️ Scratch & Win</h3>
 
-<!-- ================= SCRATCH ================= -->
-<div id="scratchSection" class="scratch-card hidden">
-  <div id="scratchReward" class="scratch-reward">🎁 Scratch to Win</div>
-  <canvas id="scratchCanvas" width="260" height="160"></canvas>
+  <div id="scratchSection" class="scratch-card hidden">
+    <div id="scratchReward" class="scratch-reward">🎁 Scratch to Win</div>
+    <canvas id="scratchCanvas" width="260" height="160"></canvas>
+  </div>
+
+  <button id="scratchBtn" class="primary-btn">🎟️ SCRATCH</button>
+  <p id="cooldownText" class="hidden">⏳ Please wait...</p>
 </div>
 
-<button id="scratchBtn" class="primary-btn">🎟️ SCRATCH</button>
-<p id="cooldownText" class="hidden">⏳ Please wait...</p>
+<!-- ================= DAILY BONUS ================= -->
+<div class="daily-section">
 
-<button id="dailyBtn" class="secondary-btn">🎁 Daily Free Energy</button>
-<a href="/shop.html" class="menu-link">🛒 Shop</a>
-<button id="adsBtn" class="secondary-btn">📺 Watch Ad → +Energy</button>
+  <!-- DAILY SPIN -->
+  <div class="spin-card">
+    <h3>🎡 Daily Spin</h3>
+    <p class="muted">Spin once per day to earn rewards</p>
 
-<!-- ================= REFERRAL ================= -->
+    <div class="wheel-box">
+      <div id="spinWheel" class="wheel">🎁</div>
+    </div>
+
+    <button id="spinBtn" class="primary-btn">🔄 Spin Now</button>
+    <p id="spinText" class="muted"></p>
+  </div>
+
+  <!-- DAILY ENERGY -->
+  <button id="dailyBtn" class="secondary-btn">🎁 Daily Free Energy</button>
+</div>
+
+<!-- ================= MONETIZATION ================= -->
+<div class="monetize-section">
+
+  <!-- MYSTERY AD -->
+  <div class="mystery-box-card">
+    <h3>🎁 Mystery Ad Box</h3>
+    <p>Watch an ad to unlock a surprise!</p>
+    <button id="openMysteryBtn" class="primary-btn">📺 Watch Ad & Open</button>
+    <p id="mysteryCooldown" class="muted"></p>
+  </div>
+
+  <button id="adsBtn" class="secondary-btn">📺 Watch Ad → +Energy</button>
+  <a href="/shop.html" class="menu-link">🛒 Shop</a>
+</div>
+
+<!-- ================= SOCIAL ================= -->
 <div class="referral-card">
   <h3>🎁 Invite Friends</h3>
-  <p class="ref-desc">
-    ⚡ <b>+25 Energy</b> · ⭐ <b>+125 Points</b>
-  </p>
+  <p class="ref-desc">⚡ +25 Energy · ⭐ +125 Points</p>
 
   <div class="ref-box">
-    <p class="ref-title">Your Referral Code</p>
     <div class="ref-code-row">
       <span id="referralCode" class="ref-code">----</span>
       <button class="copy-btn" onclick="copyReferral()">Copy</button>
@@ -122,58 +93,22 @@
 <!-- ================= ACHIEVEMENTS ================= -->
 <section class="achievements-section">
   <h2>🏆 Achievements</h2>
-  <div id="achievementsList" class="achievements-list">
-    <p class="loading-text">Loading achievements...</p>
-  </div>
+  <div id="achievementsList" class="achievements-list"></div>
 </section>
 
-<!-- ================= PROMO VIDEO ================= -->
-<div id="promoModal" class="promo-modal hidden">
-  <div class="promo-box">
-    <h3>🎁 Bonus Ready</h3>
-    <video id="promoVideo" width="100%" playsinline>
-      <source src="/promo.mp4" type="video/mp4">
-    </video>
-    <p id="skipText">Skip in 5s</p>
-    <button id="skipPromoVideoBtn" disabled>Skip</button>
-  </div>
-</div>
-
-<!-- ================= PROMO BANNER ================= -->
-<div id="promoBanner" class="promo-banner hidden">
-  <div class="promo-card">
-    <img src="/promo/banner.png" alt="Promo" />
-    <p>🎉 Thanks for playing Scratch Game!</p>
-    <button id="skipPromoBannerBtn">Skip</button>
-  </div>
-</div>
-
-<!-- ================= DISCLAIMER ================= -->
+<!-- ================= DISCLAIMER & FOOTER ================= -->
 <div class="disclaimer">
-  <p>
-    ⚠️ <b>Disclaimer:</b><br>
-    No real money or cash withdrawal.<br>
-    All rewards are virtual and for entertainment only.
-  </p>
+  ⚠️ No real money. All rewards are virtual and for entertainment only.
 </div>
 
-<!-- ================= FOOTER ================= -->
 <div class="footer-links">
   <a href="/about.html">About</a> ·
   <a href="/privacy.html">Privacy</a> ·
   <a href="/terms.html">Terms</a>
 </div>
 
-<!-- ================= SERVICE WORKER ================= -->
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/service-worker.js");
-  }
-</script>
-
 <script src="/script.js"></script>
 <script src="/index.js"></script>
 <script src="/daily-spin.js"></script>
 
 </body>
-</html>
