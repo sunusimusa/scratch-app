@@ -78,3 +78,55 @@ async function scratch() {
 
   BUSY = false;
 }
+
+/* ================= DAILY SPIN ================= */
+let SPINNING = false;
+
+async function spinDaily() {
+  if (SPINNING) return;
+  SPINNING = true;
+
+  spinText.innerText = "🎡 Spinning...";
+  spinWheel.classList.add("spin");
+
+  setTimeout(async () => {
+    try {
+      const res = await fetch("/api/spin", {
+        method: "POST",
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      spinWheel.classList.remove("spin");
+
+      if (data.error === "ALREADY_SPUN") {
+        spinText.innerText = "⏳ Come back tomorrow";
+        SPINNING = false;
+        return;
+      }
+
+      if (data.error) {
+        spinText.innerText = "❌ Spin failed";
+        SPINNING = false;
+        return;
+      }
+
+      // ✅ APPLY REWARD
+      USER.energy = data.energy;
+      USER.balance = data.points;
+      USER.level = data.level;
+      updateUI();
+
+      if (data.reward.energy)
+        spinText.innerText = `⚡ +${data.reward.energy} Energy`;
+      else
+        spinText.innerText = `⭐ +${data.reward.points} Points`;
+
+    } catch {
+      spinText.innerText = "❌ Network error";
+    }
+
+    SPINNING = false;
+  }, 3500);
+}
+
