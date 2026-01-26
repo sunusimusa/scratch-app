@@ -10,6 +10,20 @@ const MAX_INIT_TRIES = 5;
 
 let SCRATCHING = false;
 
+function initGuestUser() {
+  USER = {
+    balance: 0,
+    energy: 0,
+    level: 1,
+    luck: 0,
+    gold: 0,
+    diamond: 0
+  };
+
+  updateUI();
+  showStatus("🎮 Playing as Guest");
+}
+
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
   initUser();
@@ -58,12 +72,13 @@ async function initUser() {
     showStatus("✅ Ready");
 
   } catch {
-    INIT_TRIES++;
-    if (INIT_TRIES < MAX_INIT_TRIES) {
-      setTimeout(initUser, 1000);
-    } else {
-      showStatus("❌ Unable to initialize user");
-    }
+  INIT_TRIES++;
+
+  if (INIT_TRIES < MAX_INIT_TRIES) {
+    setTimeout(initUser, 1000);
+  } else {
+    // ✅ maimakon error → Guest mode
+    initGuestUser();
   }
 }
 
