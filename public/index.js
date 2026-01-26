@@ -54,3 +54,38 @@ spinBtn.onclick = async ()=>{
   updateUI();
   status.innerText="🎁 Spin reward +"+d.reward;
 };
+
+function initScratchCard() {
+  const canvas = document.getElementById("scratchCanvas");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  let scratching = false;
+
+  // Cover
+  ctx.fillStyle = "#999";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  function scratch(x, y) {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  canvas.addEventListener("touchstart", e => {
+    scratching = true;
+  });
+
+  canvas.addEventListener("touchend", e => {
+    scratching = false;
+    claimScratchReward(); // 👉 reward bayan an gama
+  });
+
+  canvas.addEventListener("touchmove", e => {
+    if (!scratching) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    scratch(t.clientX - rect.left, t.clientY - rect.top);
+  });
+}
