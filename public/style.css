@@ -765,3 +765,25 @@ function buyWithDiamond() {
   margin-top: 10px;
 }
 
+.spin-card {
+  background: #1c1c28;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 20px auto;
+  width: 260px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.wheel-box {
+  margin: 14px 0;
+}
+
+.wheel {
+  font-size: 64px;
+  transition: transform 4s ease-out;
+}
+
+.wheel.spin {
+  transform: rotate(1440deg);
+}
