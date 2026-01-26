@@ -188,6 +188,7 @@ async function claimReferralCode() {
   if (invGold)    invGold.innerText    = USER.gold ?? 0;
   if (invDiamond) invDiamond.innerText = USER.diamond ?? 0;
   }
+   
 /* ================= STATUS ================= */
 function showStatus(text) {
   const el = document.getElementById("statusMsg");
