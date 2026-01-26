@@ -54,3 +54,8 @@ button {
 .hidden {
   display: none;
 }
+
+.wheel.spin {
+  transform: rotate(1440deg);
+  transition: transform 3.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+}
