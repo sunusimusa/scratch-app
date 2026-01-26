@@ -37,13 +37,21 @@ btn.onclick = () => {
   wheel.style.transform = `rotate(${rotateTo}deg)`;
 
   setTimeout(() => {
-    const r = rewards[index];
-    txt.innerText = `🎉 Ka samu ${r.label}`;
-    localStorage.setItem("lastSpin", today);
+  const r = rewards[index];
+  txt.innerText = `🎉 Ka samu ${r.label}`;
+  localStorage.setItem("lastSpin", today);
 
-    // 👉 anan zaka ƙara reward zuwa USER (energy/points)
-    // USER.energy += r.value; updateUI();
+  // ===== APPLY REWARD =====
+  if (r.label.includes("Energy")) {
+    USER.energy += r.value;
+  }
 
-    spinning = false;
-  }, 4200);
-};
+  if (r.label.includes("Points")) {
+    USER.points += r.value;
+  }
+
+  // sabunta UI
+  if (window.updateUI) updateUI();
+
+  spinning = false;
+}, 4200);
