@@ -1,92 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Scratch Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#ffd700" />
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="stylesheet" href="/style.css" />
+<meta charset="UTF-8">
+<title>Scratch Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<a href="/dashboard.html" class="menu-link">📊 Dashboard</a>
+<h2>🎟️ Scratch Game</h2>
+<p id="status"></p>
 
-<h2 class="title">🎟️ Scratch Game</h2>
-<p id="statusMsg" class="status hidden"></p>
+<div class="bar">
+  <div id="energyFill"></div>
+</div>
+<p id="energyText">Energy: 0</p>
+<p id="pointsText">Points: 0</p>
 
-<!-- PLAYER STATUS -->
-<div class="player-stats">
-  <div class="energy-bar"><div id="energyFill"></div></div>
-  <p id="energyText">Energy: 0</p>
-  <p id="levelText">Level: 1</p>
-  <p id="pointsText">Points: 0</p>
+<button id="scratchBtn">🎟️ SCRATCH</button>
 
-  <div class="luck-box">
-    <div class="luck-label">🍀 Luck Meter</div>
-    <div class="luck-bar"><div id="luckFill"></div></div>
-    <div id="luckText">0%</div>
-  </div>
+<div class="spin">
+  <div id="wheel">🎁</div>
+  <button id="spinBtn">🎡 Daily Spin</button>
 </div>
 
-<p class="muted center">
-  Scratch cards and earn virtual rewards 🎁
-</p>
+<button id="adsBtn">📺 Watch Ad (+2 Energy)</button>
 
-<!-- SCRATCH -->
-<div class="main-game-card">
-  <h3>🎟️ Scratch & Win</h3>
+<footer>
+<a href="/about.html">About</a> ·
+<a href="/privacy.html">Privacy</a> ·
+<a href="/terms.html">Terms</a>
+</footer>
 
-  <div id="scratchSection" class="scratch-card hidden">
-    <div id="scratchReward">🎁 Scratch to Win</div>
-    <canvas id="scratchCanvas" width="260" height="160"></canvas>
-  </div>
-
-  <button id="scratchBtn" class="primary-btn">🎟️ SCRATCH</button>
-</div>
-
-<!-- DAILY ENERGY -->
-<button id="dailyBtn" class="secondary-btn">
-  🎁 Daily Free Energy
-</button>
-
-<!-- ADS -->
-<button id="adsBtn" class="secondary-btn">
-  📺 Watch Ad → +Energy
-</button>
-
-<!-- MYSTERY -->
-<div class="mystery-box-card">
-  <h3>🎁 Mystery Box</h3>
-  <button id="openMysteryBtn" class="primary-btn">
-    📺 Watch Ad & Open
-  </button>
-</div>
-
-<!-- REFERRAL -->
-<div class="referral-card">
-  <h3>🎁 Invite Friends</h3>
-
-  <div class="ref-box">
-    <span id="referralCode">----</span>
-    <button onclick="copyReferral()">Copy</button>
-  </div>
-
-  <input id="refInput" placeholder="Enter referral code" />
-  <button onclick="claimReferralCode()">🎉 Claim</button>
-</div>
-
-<!-- ACHIEVEMENTS -->
-<section class="achievements-section">
-  <h2>🏆 Achievements</h2>
-  <div id="achievementsList"></div>
-</section>
-
-<div class="disclaimer">
-  ⚠️ No real money. Virtual rewards only.
-</div>
-
-<script src="/script.js"></script>
 <script src="/index.js"></script>
 </body>
 </html>
