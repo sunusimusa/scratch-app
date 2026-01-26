@@ -45,14 +45,31 @@ adsBtn.onclick = async ()=>{
 };
 
 /* SPIN */
-spinBtn.onclick = async ()=>{
-  wheel.style.transform="rotate(1440deg)";
-  const r = await fetch("/api/spin",{method:"POST",credentials:"include"});
-  const d = await r.json();
-  if(d.error) return status.innerText="Come back tomorrow";
-  USER.energy=d.energy;
-  updateUI();
-  status.innerText="🎁 Spin reward +"+d.reward;
+spinBtn.onclick = async () => {
+  spinBtn.disabled = true;
+  status.innerText = "🎡 Spinning...";
+
+  const deg = 1440 + Math.floor(Math.random() * 360);
+  wheel.style.transform = `rotate(${deg}deg)`;
+
+  setTimeout(async () => {
+    const r = await fetch("/api/spin", {
+      method: "POST",
+      credentials: "include"
+    });
+    const d = await r.json();
+
+    if (d.error) {
+      status.innerText = "⏳ Come back tomorrow";
+      spinBtn.disabled = false;
+      return;
+    }
+
+    USER.energy = d.energy;
+    updateUI();
+    status.innerText = `🎁 You won +${d.reward} energy`;
+    spinBtn.disabled = false;
+  }, 3000);
 };
 
 function initScratchCard() {
