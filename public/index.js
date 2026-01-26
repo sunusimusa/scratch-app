@@ -33,13 +33,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= UI BIND ================= */
 function bindUI() {
-  const scratchBtn = document.getElementById("scratchBtn");
-  const dailyBtn   = document.getElementById("dailyBtn");
-  const adsBtn     = document.getElementById("adsBtn");
+  document.getElementById("scratchBtn")
+    ?.addEventListener("click", startScratch);
 
-  if (scratchBtn) scratchBtn.onclick = startScratch;
-  if (dailyBtn)   dailyBtn.onclick   = claimDailyEnergy;
-  if (adsBtn)     adsBtn.onclick     = watchAd;
+  document.getElementById("dailyBtn")
+    ?.addEventListener("click", claimDailyEnergy);
+
+  document.getElementById("adsBtn")
+    ?.addEventListener("click", watchAd);
+
+  document.getElementById("openMysteryBtn")
+    ?.addEventListener("click", () => {
+      showStatus("📺 Watching Ad...");
+      setTimeout(openMysteryBox, 5000);
+    });
+
+  document.getElementById("copyRefBtn")
+    ?.addEventListener("click", copyReferral);
+
+  document.getElementById("claimRefBtn")
+    ?.addEventListener("click", claimReferralCode);
 }
 
 /* ================= USER INIT ================= */
