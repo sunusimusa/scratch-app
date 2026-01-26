@@ -4,54 +4,56 @@ const txt   = document.getElementById("spinStatus");
 
 let spinning = false;
 
-// rewards (safe)
+// 🎁 Rewards (virtual only)
 const rewards = [
-  { label: "+5 Energy",  value: 5 },
-  { label: "+10 Energy", value: 10 },
-  { label: "+20 Points", value: 20 },
-  { label: "+1 Luck",    value: 1 },
-  { label: "+15 Energy", value: 15 },
-  { label: "+50 Points", value: 50 }
+  { label: "+5 Energy",  type: "energy", value: 5 },
+  { label: "+10 Energy", type: "energy", value: 10 },
+  { label: "+20 Points", type: "points", value: 20 },
+  { label: "+1 Luck",    type: "luck",   value: 1 },
+  { label: "+15 Energy", type: "energy", value: 15 },
+  { label: "+50 Points", type: "points", value: 50 }
 ];
 
-btn.onclick = () => {
+btn.addEventListener("click", () => {
   if (spinning) return;
 
-  // daily lock
-  const last = localStorage.getItem("lastSpin");
+  // 🔒 Daily lock (1 spin per day)
   const today = new Date().toDateString();
+  const last  = localStorage.getItem("lastSpin");
+
   if (last === today) {
-    txt.innerText = "⏳ Ka riga ka yi spin yau";
+    txt.innerText = "⏳ Come back tomorrow";
     return;
   }
 
   spinning = true;
+  btn.disabled = true;
   txt.innerText = "🎡 Spinning...";
 
-  // random spin
+  // 🎯 Pick reward
   const index = Math.floor(Math.random() * rewards.length);
   const anglePer = 360 / rewards.length;
-  const rotateTo =
-    360 * 5 + (index * anglePer) + anglePer / 2;
 
-  wheel.style.transform = `rotate(${rotateTo}deg)`;
+  // 🔄 Spin animation (5 rounds)
+  const rotateTo = 360 * 5 + (index * anglePer) + anglePer / 2;
+  wheel.style.transition = "transform 4s cubic-bezier(.25,1,.5,1)";
+  wheel.style.transform  = `rotate(${rotateTo}deg)`;
 
   setTimeout(() => {
-  const r = rewards[index];
-  txt.innerText = `🎉 Ka samu ${r.label}`;
-  localStorage.setItem("lastSpin", today);
+    const r = rewards[index];
 
-  // ===== APPLY REWARD =====
-  if (r.label.includes("Energy")) {
-    USER.energy += r.value;
-  }
+    txt.innerText = `🎉 You won ${r.label}`;
+    localStorage.setItem("lastSpin", today);
 
-  if (r.label.includes("Points")) {
-    USER.points += r.value;
-  }
+    // ✅ APPLY REWARD (LOCAL / GAME ONLY)
+    if (window.USER) {
+      if (r.type === "energy") USER.energy += r.value;
+      if (r.type === "points") USER.points += r.value;
+      if (r.type === "luck")   USER.luck   += r.value;
+      if (window.updateUI) updateUI();
+    }
 
-  // sabunta UI
-  if (window.updateUI) updateUI();
-
-  spinning = false;
-}, 4200);
+    spinning = false;
+    btn.disabled = false;
+  }, 4200);
+});
