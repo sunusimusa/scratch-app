@@ -1,88 +1,56 @@
 let USER = null;
-let SCRATCHING = false;
-let ADS_COOLDOWN = false;
 
-document.addEventListener("DOMContentLoaded", () => {
-  bindUI();
-  initUser();
-  loadAchievements();
+const energyText = document.getElementById("energyText");
+const pointsText = document.getElementById("pointsText");
+const energyFill = document.getElementById("energyFill");
+const status = document.getElementById("status");
+
+/* INIT */
+fetch("/api/user", { method:"POST", credentials:"include" })
+.then(r=>r.json())
+.then(d=>{
+  USER=d;
+  updateUI();
 });
 
-function bindUI() {
-  scratchBtn?.addEventListener("click", startScratch);
-  dailyBtn?.addEventListener("click", claimDailyEnergy);
-  adsBtn?.addEventListener("click", watchAd);
-  openMysteryBtn?.addEventListener("click", watchMysteryAd);
-  spinBtn?.addEventListener("click", spinDaily);
+function updateUI(){
+  energyText.innerText = "Energy: " + USER.energy;
+  pointsText.innerText = "Points: " + USER.points;
+  energyFill.style.width = Math.min(USER.energy*10,100)+"%";
 }
 
-async function initUser() {
-  try {
-    const res = await fetch("/api/user", { method: "POST", credentials: "include" });
-    const data = await res.json();
-    if (!data.success) throw 1;
+/* SCRATCH */
+scratchBtn.onclick = async ()=>{
+  status.innerText="Scratching...";
+  const r = await fetch("/api/scratch",{method:"POST",credentials:"include"});
+  const d = await r.json();
+  if(d.error) return status.innerText="No energy";
+  USER.energy=d.energy;
+  USER.points=d.points;
+  updateUI();
+  status.innerText="🎉 You won "+d.reward+" points";
+};
 
-    USER = {
-      balance: data.points,
-      energy: data.energy,
-      level: data.level,
-      luck: data.luck
-    };
-
-    referralCode.innerText = data.referralCode || "----";
+/* ADS */
+adsBtn.onclick = async ()=>{
+  status.innerText="Watching ad...";
+  setTimeout(async ()=>{
+    const r = await fetch("/api/ads/watch",{method:"POST",credentials:"include"});
+    const d = await r.json();
+    if(d.error) return status.innerText="Limit reached";
+    USER.energy=d.energy;
     updateUI();
-    showStatus("✅ Ready");
-  } catch {
-    showStatus("❌ Failed to load user");
-  }
-}
+    status.innerText="⚡ +2 Energy";
+  },3000);
+};
 
-function updateUI() {
-  if (!USER) return;
-  energyText.innerText = `Energy: ${USER.energy}`;
-  pointsText.innerText = `Points: ${USER.balance}`;
-  levelText.innerText = `Level: ${USER.level}`;
-  energyFill.style.width = Math.min(USER.energy * 10, 100) + "%";
-  luckFill.style.width = USER.luck + "%";
-  luckText.innerText = USER.luck + "%";
-}
-
-function showStatus(msg) {
-  statusMsg.innerText = msg;
-  statusMsg.classList.remove("hidden");
-}
-
-/* ================= SCRATCH ================= */
-async function startScratch() {
-  if (SCRATCHING || USER.energy < 3) return showStatus("⚡ Not enough energy");
-
-  SCRATCHING = true;
-  scratchSection.classList.remove("hidden");
-
-  const res = await fetch("/api/scratch", { method: "POST", credentials: "include" });
-  const data = await res.json();
-
-  if (data.error) {
-    showStatus("❌ " + data.error);
-  } else {
-    USER.energy = data.energy;
-    USER.balance = data.balance;
-    USER.level = data.level;
-    USER.luck = data.luck;
-    scratchReward.innerText = "🎉 Reward received!";
-    updateUI();
-  }
-
-  SCRATCHING = false;
-}
-
-/* ================= DAILY ================= */
-async function claimDailyEnergy() {
-  const res = await fetch("/api/daily-energy", { method: "POST", credentials: "include" });
-  const data = await res.json();
-  if (!data.error) {
-    USER.energy = data.energy;
-    updateUI();
-    showStatus("⚡ +5 Energy");
-  }
-}
+/* SPIN */
+spinBtn.onclick = async ()=>{
+  wheel.style.transform="rotate(1440deg)";
+  const r = await fetch("/api/spin",{method:"POST",credentials:"include"});
+  const d = await r.json();
+  if(d.error) return status.innerText="Come back tomorrow";
+  USER.energy=d.energy;
+  updateUI();
+  status.innerText="🎁 Spin reward +"+d.reward;
+};
