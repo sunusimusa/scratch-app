@@ -1,45 +1,60 @@
 import express from "express";
 import mongoose from "mongoose";
-import cookieParser from "cookie-parser";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import helmet from "helmet";
+import compression from "compression";
+
+import User from "./models/User.js";
 
 dotenv.config();
-
 const app = express();
+
+/* ================= PATH FIX ================= */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ================= BASIC ================= */
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
+app.use(compression());
 app.use(cors({ origin: true, credentials: true }));
+
+/* ================= STATIC ================= */
 app.use(express.static(path.join(__dirname, "public")));
 
 /* ================= DB ================= */
-mongoose.connect(process.env.MONGODB_URI)
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.log("❌ Mongo error", err));
-
-/* ================= MODEL ================= */
-const UserSchema = new mongoose.Schema({
-  sessionId: String,
-  energy: { type: Number, default: 5 },
-  points: { type: Number, default: 0 },
-  level: { type: Number, default: 1 },
-  luck: { type: Number, default: 0 },
-  referralCode: String,
-  lastDaily: String
-}, { timestamps: true });
-
-const User = mongoose.model("User", UserSchema);
+  .catch(err => console.error("❌ MongoDB error:", err));
 
 /* ================= HELPERS ================= */
-const today = () => new Date().toISOString().slice(0, 10);
-const calcLevel = p => Math.floor(p / 100) + 1;
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function calcLevel(points) {
+  return Math.min(1000, Math.floor(points / 100) + 1);
+}
+
+function generateReferralCode() {
+  return "REF" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+/* ================= ACHIEVEMENTS ================= */
+const ACHIEVEMENTS = [
+  { key: "FIRST_SCRATCH", title: "First Scratch", desc: "Complete your first scratch", reward: "+3 Energy" },
+  { key: "BIG_WIN", title: "Big Win", desc: "Win 20 points in one scratch", reward: "+5 Energy" },
+  { key: "LUCK_MASTER", title: "Luck Master", desc: "Fill Luck Meter to 100%", reward: "+20 Points" },
+  { key: "STREAK_7", title: "7 Days Streak", desc: "Play 7 days in a row", reward: "+50 Energy ⭐" }
+];
 
 /* ================= USER INIT ================= */
 app.post("/api/user", async (req, res) => {
@@ -50,131 +65,37 @@ app.post("/api/user", async (req, res) => {
     if (!user) {
       sid = crypto.randomUUID();
       user = await User.create({
+        userId: "USER_" + Date.now(),
         sessionId: sid,
-        referralCode: "REF" + Math.random().toString(36).slice(2, 8).toUpperCase()
+        energy: 0,
+        points: 0,
+        level: 1,
+        luck: 0,
+        referralCode: generateReferralCode(),
+        achievements: []
       });
 
       res.cookie("sid", sid, {
         httpOnly: true,
         sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
         path: "/"
       });
     }
 
     res.json({
       success: true,
+      userId: user.userId,
       energy: user.energy,
       points: user.points,
       level: user.level,
       luck: user.luck,
-      referralCode: user.referralCode
+      referralCode: user.referralCode,
+      referralsCount: user.referralsCount || 0,
+      dailyClaimed: user.dailyEnergyDate === todayString()
     });
-
-  } catch {
-    res.status(500).json({ success: false });
-  }
-});
-
-/* ================= DAILY ENERGY ================= */
-app.post("/api/daily-energy", async (req, res) => {
-  const user = await User.findOne({ sessionId: req.cookies.sid });
-  if (!user) return res.json({ error: true });
-
-  if (user.lastDaily === today())
-    return res.json({ error: true });
-
-  user.energy += 5;
-  user.lastDaily = today();
-  await user.save();
-
-  res.json({ energy: user.energy });
-});
-
-/* ================= WATCH AD ================= */
-app.post("/api/ads/watch", async (req, res) => {
-  const user = await User.findOne({ sessionId: req.cookies.sid });
-  if (!user) return res.json({ error: true });
-
-  user.energy += 2;
-  await user.save();
-
-  res.json({ energy: user.energy });
-});
-
-/* ================= SCRATCH ================= */
-app.post("/api/scratch", async (req, res) => {
-  const user = await User.findOne({ sessionId: req.cookies.sid });
-  if (!user || user.energy < 3)
-    return res.json({ error: "NO_ENERGY" });
-
-  user.energy -= 3;
-
-  const roll = Math.random();
-  if (roll < 0.6) user.points += 5;
-  else user.energy += 2;
-
-  user.level = calcLevel(user.points);
-  await user.save();
-
-  res.json({
-    balance: user.points,
-    energy: user.energy,
-    level: user.level,
-    luck: user.luck
-  });
-});
-
-/* ================= DAILY SPIN ================= */
-app.post("/api/spin", async (req, res) => {
-  try {
-    const sid = req.cookies.sid;
-    if (!sid) return res.json({ error: "NO_SESSION" });
-
-    const user = await User.findOne({ sessionId: sid });
-    if (!user) return res.json({ error: "NO_USER" });
-
-    const todayStr = today();
-
-    if (user.lastSpinDate === todayStr) {
-      return res.json({ error: "ALREADY_SPUN" });
-    }
-
-    // 🎲 RANDOM REWARD
-    const roll = Math.random() * 100;
-    let reward = { energy: 0, points: 0 };
-
-    if (roll < 50) {
-      reward.energy = 5;
-      user.energy += 5;
-    } else if (roll < 85) {
-      reward.energy = 10;
-      user.energy += 10;
-    } else {
-      reward.points = 20;
-      user.points += 20;
-    }
-
-    user.level = calcLevel(user.points);
-    user.lastSpinDate = todayStr;
-    await user.save();
-
-    res.json({
-      success: true,
-      reward,
-      energy: user.energy,
-      points: user.points,
-      level: user.level
-    });
-
-  } catch (e) {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
-
-/* ================= ROOT ================= */
-app.get("/", (_, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("🚀 Server running on", PORT));
