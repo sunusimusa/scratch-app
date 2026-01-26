@@ -12,16 +12,19 @@
   <link rel="manifest" href="/manifest.json" />
 
   <!-- STYLE -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
-  <!-- ================= HEADER ================= -->
-  <a href="/dashboard.html" class="menu-link">📊 Dashboard</a>
-  <h2 class="title">🎟️ Scratch Game</h2>
-  <p id="statusMsg" class="status hidden"></p>
+<!-- ================= TOP BAR ================= -->
+<a href="/dashboard.html" class="menu-link">📊 Dashboard</a>
 
-  <!-- ================= PLAYER INFO ================= -->
+<h2 class="title">🎟️ Scratch Game</h2>
+<p id="statusMsg" class="status hidden"></p>
+
+<!-- ================= PLAYER STATUS ================= -->
+<div class="player-stats">
+
   <div class="energy-bar">
     <div id="energyFill"></div>
   </div>
@@ -30,7 +33,7 @@
   <p id="levelText">Level: 1</p>
   <p id="pointsText">Points: 0</p>
 
-  <!-- ================= LUCK ================= -->
+  <!-- LUCK -->
   <div class="luck-box">
     <div class="luck-label">🍀 Luck Meter</div>
     <div class="luck-bar">
@@ -39,7 +42,17 @@
     <div id="luckText">0%</div>
   </div>
 
-  <!-- ================= SCRATCH ================= -->
+</div>
+
+<!-- ================= INTRO ================= -->
+<p class="muted center">
+  Scratch cards, spin daily and earn virtual rewards 🎁
+</p>
+
+<!-- ================= MAIN GAME ================= -->
+<div class="main-game-card">
+  <h3>🎟️ Scratch & Win</h3>
+
   <div id="scratchSection" class="scratch-card hidden">
     <div id="scratchReward" class="scratch-reward">🎁 Scratch to Win</div>
     <canvas id="scratchCanvas" width="260" height="160"></canvas>
@@ -47,8 +60,12 @@
 
   <button id="scratchBtn" class="primary-btn">🎟️ SCRATCH</button>
   <p id="cooldownText" class="hidden">⏳ Please wait...</p>
+</div>
 
-  <!-- ================= DAILY SPIN ================= -->
+<!-- ================= DAILY BONUSES ================= -->
+<div class="daily-section">
+
+  <!-- DAILY SPIN -->
   <div class="spin-card">
     <h3>🎡 Daily Spin</h3>
     <p class="muted">Spin once per day to earn rewards</p>
@@ -61,59 +78,81 @@
     <p id="spinText" class="muted"></p>
   </div>
 
-  <!-- ================= DAILY ENERGY ================= -->
-  <button id="dailyBtn" class="secondary-btn">🎁 Daily Free Energy</button>
+  <!-- DAILY ENERGY -->
+  <button id="dailyBtn" class="secondary-btn">
+    🎁 Daily Free Energy
+  </button>
 
-  <!-- ================= ADS ================= -->
+</div>
+
+<!-- ================= MONETIZATION ================= -->
+<div class="monetize-section">
+
   <div class="mystery-box-card">
     <h3>🎁 Mystery Ad Box</h3>
     <p>Watch an ad to unlock a surprise!</p>
-    <button id="openMysteryBtn" class="primary-btn">📺 Watch Ad & Open</button>
+    <button id="openMysteryBtn" class="primary-btn">
+      📺 Watch Ad & Open
+    </button>
     <p id="mysteryCooldown" class="muted"></p>
   </div>
 
-  <button id="adsBtn" class="secondary-btn">📺 Watch Ad → +Energy</button>
+  <button id="adsBtn" class="secondary-btn">
+    📺 Watch Ad → +Energy
+  </button>
+
   <a href="/shop.html" class="menu-link">🛒 Shop</a>
+</div>
 
-  <!-- ================= REFERRAL ================= -->
-  <div class="referral-card">
-    <h3>🎁 Invite Friends</h3>
-    <p class="ref-desc">⚡ +25 Energy · ⭐ +125 Points</p>
+<!-- ================= REFERRAL ================= -->
+<div class="referral-card">
+  <h3>🎁 Invite Friends</h3>
+  <p class="ref-desc">
+    ⚡ +25 Energy · ⭐ +125 Points
+  </p>
 
+  <div class="ref-box">
     <div class="ref-code-row">
       <span id="referralCode" class="ref-code">----</span>
       <button class="copy-btn" onclick="copyReferral()">Copy</button>
     </div>
-
-    <input id="refInput" class="ref-input" placeholder="Enter referral code" />
-    <button class="primary-btn" onclick="claimReferralCode()">🎉 Claim Referral</button>
   </div>
 
-  <!-- ================= ACHIEVEMENTS ================= -->
-  <section class="achievements-section">
-    <h2>🏆 Achievements</h2>
-    <div id="achievementsList" class="achievements-list">
-      <p class="loading-text">Loading achievements...</p>
-    </div>
-  </section>
+  <input id="refInput" class="ref-input" placeholder="Enter referral code" />
+  <button class="primary-btn" onclick="claimReferralCode()">
+    🎉 Claim Referral
+  </button>
+</div>
 
-  <!-- ================= DISCLAIMER ================= -->
-  <div class="disclaimer">
-    ⚠️ No real money or cash withdrawal.<br>
-    All rewards are virtual and for entertainment only.
-  </div>
+<!-- ================= ACHIEVEMENTS ================= -->
+<section class="achievements-section">
+  <h2>🏆 Achievements</h2>
+  <div id="achievementsList" class="achievements-list"></div>
+</section>
 
-  <!-- ================= FOOTER ================= -->
-  <div class="footer-links">
-    <a href="/about.html">About</a> ·
-    <a href="/privacy.html">Privacy</a> ·
-    <a href="/terms.html">Terms</a>
-  </div>
+<!-- ================= DISCLAIMER ================= -->
+<div class="disclaimer">
+  ⚠️ No real money or cash withdrawal.<br />
+  All rewards are virtual and for entertainment only.
+</div>
 
-  <!-- ================= SCRIPTS ================= -->
-  <script src="script.js"></script>
-  <script src="index.js"></script>
-  <script src="daily-spin.js"></script>
+<!-- ================= FOOTER ================= -->
+<div class="footer-links">
+  <a href="/about.html">About</a> ·
+  <a href="/privacy.html">Privacy</a> ·
+  <a href="/terms.html">Terms</a>
+</div>
+
+<!-- ================= SERVICE WORKER ================= -->
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js");
+  }
+</script>
+
+<script src="/script.js"></script>
+<script src="/index.js"></script>
+<script src="/daily-spin.js"></script>
 
 </body>
-                                     </html>
+</html>
