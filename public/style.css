@@ -169,3 +169,30 @@ footer,
 .seg4{ transform:rotate(210deg) translate(70px,-10px); }
 .seg5{ transform:rotate(270deg) translate(70px,-10px); }
 .seg6{ transform:rotate(330deg) translate(70px,-10px); }
+
+.pointer{
+  position:absolute;
+  top:-18px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:32px;
+  color:#ffd700;
+  text-shadow:
+    0 0 6px #ffd700,
+    0 0 12px #ff9800;
+  z-index:10;
+}
+
+.pointer{
+  position:absolute;
+  top:-14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-bottom:18px solid #ffd700;
+  filter:drop-shadow(0 0 6px #ff9800);
+  z-index:10;
+}
