@@ -13,11 +13,13 @@ const wheel      = document.getElementById("spinWheel");
 
 /* ================= INIT USER ================= */
 fetch("/api/user", { method:"POST", credentials:"include" })
-.then(r=>r.json())
-.then(d=>{
-  USER=d;
+.then(r => r.json())
+.then(d => {
+  USER = {
+    energy: Number(d.energy) || 0,
+    points: Number(d.points) || 0
+  };
   updateUI();
-  showStatus("✅ Ready");
 });
 
 /* ================= UI ================= */
