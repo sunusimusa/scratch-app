@@ -106,26 +106,32 @@ adsBtn.onclick = ()=>{
 };
 
 /* ================= SPIN ================= */
-spinBtn.onclick = async ()=>{
-  spinBtn.disabled=true;
-  showStatus("🎡 Spinning...");
+spinBtn.onclick = () => {
+  spinBtn.disabled = true;
+  status.innerText = "🎡 Spinning...";
 
-  const deg = 1440 + Math.floor(Math.random()*360);
-  wheel.style.transition="transform 3s ease-out";
-  wheel.style.transform=`rotate(${deg}deg)`;
+  const rewards = [
+    { text:"+2 Energy", energy:2 },
+    { text:"+5 Points", points:5 },
+    { text:"+10 Points", points:10 },
+    { text:"+3 Energy", energy:3 },
+    { text:"+20 Points", points:20 },
+    { text:"+1 Diamond", diamond:1 }
+  ];
 
-  setTimeout(async ()=>{
-    const r = await fetch("/api/spin",{method:"POST",credentials:"include"});
-    const d = await r.json();
+  const index = Math.floor(Math.random()*rewards.length);
+  const angle = 360*5 + index*(360/rewards.length);
 
-    if(d.error){
-      showStatus("⏳ Come back tomorrow");
-    }else{
-      USER.energy=d.energy;
-      updateUI();
-      showStatus("🎁 You won +"+d.reward+" energy");
-    }
+  wheel.style.transform = `rotate(${angle}deg)`;
 
-    spinBtn.disabled=false;
-  },3000);
+  setTimeout(()=>{
+    const r = rewards[index];
+
+    if(r.energy) USER.energy += r.energy;
+    if(r.points) USER.points += r.points;
+
+    updateUI();
+    status.innerText = `🎁 You won ${r.text}`;
+    spinBtn.disabled = false;
+  },4000);
 };
