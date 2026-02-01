@@ -4,61 +4,51 @@
   <meta charset="UTF-8" />
   <title>Scratch Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- THEME -->
   <meta name="theme-color" content="#ffd700" />
-
-  <!-- STYLE -->
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
-  <!-- TITLE -->
-  <h2>🎟️ Scratch Game</h2>
+<h2>🎟️ Scratch Game</h2>
+<p id="statusMsg" class="status"></p>
 
-  <!-- STATUS -->
-  <p id="statusMsg" class="status"></p>
+<div class="energy-bar">
+  <div id="energyFill"></div>
+</div>
 
-  <!-- ENERGY BAR -->
-  <div class="energy-bar">
-    <div id="energyFill"></div>
+<p id="energyText">Energy: 0</p>
+<p id="pointsText">Points: 0</p>
+
+<!-- SCRATCH -->
+<button id="scratchBtn">🎟️ SCRATCH</button>
+
+<div id="scratchSection" class="scratch-card hidden">
+  <div id="scratchReward">🎁 Scratch to Win</div>
+  <canvas id="scratchCanvas" width="260" height="160"></canvas>
+</div>
+
+<!-- SPIN -->
+<div class="wheel-box">
+  <div class="pointer"></div>
+  <div id="wheel" class="wheel">
+    <span class="seg seg1">+2⚡</span>
+    <span class="seg seg2">+5⭐</span>
+    <span class="seg seg3">+10⭐</span>
+    <span class="seg seg4">+3⚡</span>
+    <span class="seg seg5">+20⭐</span>
+    <span class="seg seg6">+1💎</span>
   </div>
+</div>
 
-  <p id="energyText">Energy: 0</p>
-  <p id="pointsText">Points: 0</p>
+<button id="spinBtn">🎡 Daily Spin</button>
+<button id="adsBtn">📺 Watch Ad (+2 Energy)</button>
 
-  <!-- SCRATCH -->
-  <button id="scratchBtn">🎟️ SCRATCH</button>
+<div class="footer-links">
+  <a href="/about.html">About</a> ·
+  <a href="/privacy.html">Privacy</a> ·
+  <a href="/terms.html">Terms</a>
+</div>
 
-  <!-- ================= SPIN ================= -->
-  <div class="wheel-box">
-    <!-- ARROW -->
-    <div class="pointer"></div>
-
-    <!-- WHEEL -->
-    <div id="wheel" class="wheel">
-      <span class="seg seg1">+2⚡</span>
-      <span class="seg seg2">+5⭐</span>
-      <span class="seg seg3">+10⭐</span>
-      <span class="seg seg4">+3⚡</span>
-      <span class="seg seg5">+20⭐</span>
-      <span class="seg seg6">+1💎</span>
-    </div>
-  </div>
-
-  <button id="spinBtn">🎡 Daily Spin</button>
-
-  <!-- ADS -->
-  <button id="adsBtn">📺 Watch Ad (+2 Energy)</button>
-
-  <!-- FOOTER -->
-  <div class="footer-links">
-    <a href="/about.html">About</a> ·
-    <a href="/privacy.html">Privacy</a> ·
-    <a href="/terms.html">Terms</a>
-  </div>
-
-  <!-- SCRIPT -->
-  <script src="/index.js"></script>
+<script src="/index.js"></script>
 </body>
 </html>
