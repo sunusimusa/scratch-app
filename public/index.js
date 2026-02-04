@@ -1,6 +1,7 @@
 let USER = null;
+let SCRATCH_DONE = false;
 
-/* ELEMENTS */
+/* ================= ELEMENTS ================= */
 const energyText = document.getElementById("energyText");
 const pointsText = document.getElementById("pointsText");
 const energyFill = document.getElementById("energyFill");
@@ -11,8 +12,12 @@ const adsBtn     = document.getElementById("adsBtn");
 const spinBtn    = document.getElementById("spinBtn");
 const wheel      = document.getElementById("wheel");
 
+/* SCRATCH UI */
+const rewardImg  = document.getElementById("rewardImg");
+const rewardText = document.getElementById("rewardText");
+
 /* ================= INIT USER ================= */
-fetch("/api/user", { method: "POST", credentials: "include" })
+fetch("/api/user", { method:"POST", credentials:"include" })
   .then(r => r.json())
   .then(d => {
     USER = {
@@ -24,13 +29,13 @@ fetch("/api/user", { method: "POST", credentials: "include" })
   });
 
 /* ================= UI ================= */
-function updateUI() {
+function updateUI(){
   energyText.innerText = `Energy: ${USER.energy}`;
   pointsText.innerText = `Points: ${USER.points}`;
-  energyFill.style.width = Math.min(USER.energy * 10, 100) + "%";
+  energyFill.style.width = Math.min(USER.energy * 2, 100) + "%";
 }
 
-function showStatus(text) {
+function showStatus(text){
   statusMsg.innerText = text;
 }
 
@@ -38,23 +43,29 @@ function showStatus(text) {
 scratchBtn.onclick = () => {
   const sec = document.getElementById("scratchSection");
   if (sec) sec.classList.remove("hidden");
+
+  resetScratchReward();
   initScratchCard();
   showStatus("✋ Scratch with your finger");
 };
 
-let SCRATCH_DONE = false;
+function resetScratchReward(){
+  SCRATCH_DONE = false;
+  if (rewardImg)  rewardImg.src = "/img/box.png";
+  if (rewardText) rewardText.innerText = "Scratch to Win";
+}
 
-async function claimScratchReward() {
+async function claimScratchReward(){
   if (SCRATCH_DONE) return;
   SCRATCH_DONE = true;
 
   const r = await fetch("/api/scratch", {
-    method: "POST",
-    credentials: "include"
+    method:"POST",
+    credentials:"include"
   });
   const d = await r.json();
 
-  if (d.error) {
+  if (d.error){
     showStatus("⚡ Not enough energy");
     SCRATCH_DONE = false;
     return;
@@ -62,15 +73,27 @@ async function claimScratchReward() {
 
   USER.energy = d.energy;
   USER.points = d.points;
-
   updateUI();
-  showStatus(`🎉 You won ${d.reward} points`);
+
+  /* ===== SHOW REWARD IMAGE ===== */
+  if (d.reward >= 20){
+    rewardImg.src = "/img/gift.png";
+    rewardText.innerText = `🎁 JACKPOT +${d.reward} Points`;
+  }
+  else if (d.reward >= 10){
+    rewardImg.src = "/img/star.png";
+    rewardText.innerText = `⭐ +${d.reward} Points`;
+  }
+  else{
+    rewardImg.src = "/img/energy.png";
+    rewardText.innerText = `⚡ +${d.reward} Points`;
+  }
+
+  showStatus("🎉 Scratch reward claimed!");
 }
 
-/* SCRATCH CANVAS (SWIPE FIXED) */
-function initScratchCard() {
-  SCRATCH_DONE = false;
-
+/* ================= SCRATCH CANVAS (SWIPE OK) ================= */
+function initScratchCard(){
   const canvas = document.getElementById("scratchCanvas");
   if (!canvas) return;
 
@@ -78,13 +101,13 @@ function initScratchCard() {
   let scratching = false;
 
   ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = "#aaa";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#999";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  function scratch(x, y) {
+  function scratch(x,y){
     ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.arc(x,y,26,0,Math.PI*2);
     ctx.fill();
   }
 
@@ -110,19 +133,18 @@ adsBtn.onclick = () => {
 
   setTimeout(async () => {
     const r = await fetch("/api/ads/watch", {
-      method: "POST",
-      credentials: "include"
+      method:"POST",
+      credentials:"include"
     });
     const d = await r.json();
 
-    if (d.error) {
+    if (d.error){
       showStatus("❌ Ad limit reached");
     } else {
       USER.energy = d.energy;
       updateUI();
       showStatus("⚡ +2 Energy");
     }
-
     adsBtn.disabled = false;
   }, 3000);
 };
@@ -132,17 +154,17 @@ spinBtn.onclick = async () => {
   spinBtn.disabled = true;
   showStatus("🎡 Spinning...");
 
-  const deg = 360 * 5 + Math.floor(Math.random() * 360);
+  const deg = 360 * 6 + Math.floor(Math.random() * 360);
   wheel.style.transform = `rotate(${deg}deg)`;
 
   setTimeout(async () => {
     const r = await fetch("/api/spin", {
-      method: "POST",
-      credentials: "include"
+      method:"POST",
+      credentials:"include"
     });
     const d = await r.json();
 
-    if (d.error) {
+    if (d.error){
       showStatus("⏳ Come back tomorrow");
     } else {
       USER.energy = d.energy;
