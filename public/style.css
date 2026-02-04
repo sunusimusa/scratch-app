@@ -183,3 +183,26 @@ button:disabled{
 .footer-links a:hover{
   text-decoration:underline;
 }
+.scratch-reward{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.scratch-reward img{
+  width:70px;
+  height:70px;
+  margin-bottom:6px;
+  filter: drop-shadow(0 0 12px rgba(255,215,0,.9));
+  animation: pop .4s ease;
+}
+
+.scratch-reward p{
+  font-weight:700;
+  color:#ffd700;
+  text-shadow:0 0 8px rgba(255,215,0,.8);
+}
+
+@keyframes pop{
+  from{ transform:scale(.6); opacity:0 }
+  to{ transform:scale(1); opacity:1 }
+}
